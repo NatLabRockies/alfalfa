@@ -7,11 +7,9 @@ from alfalfa_client.alfalfa_client import AlfalfaClient
 
 
 def pytest_generate_tests(metafunc):
-    model_dir = Path(os.path.dirname(__file__)) / 'broken_models'
+    model_dir = Path(os.path.dirname(__file__)) / "broken_models"
     if "broken_model_path" in metafunc.fixturenames:
-        model_paths = [
-            model_dir / 'small_office_missing_python_requirements.zip'
-        ]
+        model_paths = [model_dir / "small_office_missing_python_requirements.zip"]
 
         metafunc.parametrize("broken_model_path", model_paths)
 
@@ -21,36 +19,33 @@ def pytest_generate_tests(metafunc):
             "bad_constructor.osw",
             "bad_module_class.osw",
             "bad_module_name.osw",
-            "missing_import.osw"
+            "missing_import.osw",
         ]
         metafunc.parametrize("broken_workflow_name", workflow_names)
 
-    model_dir = Path(os.path.dirname(__file__)) / 'models'
+    model_dir = Path(os.path.dirname(__file__)) / "models"
     if "model_path" in metafunc.fixturenames:
-        model_paths = [
-            model_dir / 'small_office',
-            model_dir / 'wrapped.fmu'
-        ]
+        model_paths = [model_dir / "small_office", model_dir / "wrapped.fmu"]
 
         metafunc.parametrize("model_path", model_paths)
 
 
 @pytest.fixture
-def alfalfa(alfalfa_host: str):
-    client = AlfalfaClient(host=alfalfa_host)
+def client(pacer_host: str):
+    client = AlfalfaClient(host=pacer_host)
     yield client
 
 
 @pytest.fixture
-def ref_id(model_path: Path, alfalfa: AlfalfaClient):
-    ref_id = alfalfa.submit(model_path)
+def ref_id(model_path: Path, client: AlfalfaClient):
+    ref_id = client.submit(model_path)
     yield ref_id
 
-    status = alfalfa.status(ref_id)
+    status = client.status(ref_id)
     if status == "running":
-        alfalfa.stop()
+        client.stop()
 
 
 def prepare_model(model_path):
-    model_path = Path(__file__).parents[0] / 'models' / model_path
+    model_path = Path(__file__).parents[0] / "models" / model_path
     return str(model_path)

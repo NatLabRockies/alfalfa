@@ -2,17 +2,26 @@ import datetime
 from datetime import timedelta
 from time import sleep
 
-from alfalfa_worker.jobs.step_run_base import StepRunBase
-from alfalfa_worker.lib.job import message
+from pacer_worker.jobs.step_run_base import StepRunBase
+from pacer_worker.lib.job import message
 from tests.worker.lib.mock_job import MockJob
 
 
 class StepRunMockJob(MockJob, StepRunBase):
-
-    def __init__(self, run_id, realtime, timescale, external_clock, start_datetime, end_datetime):
+    def __init__(
+        self, run_id, realtime, timescale, external_clock, start_datetime, end_datetime
+    ):
         super().__init__()
         self.checkout_run(run_id)
-        StepRunBase.__init__(self, run_id, realtime, timescale, external_clock, start_datetime, end_datetime)
+        StepRunBase.__init__(
+            self,
+            run_id,
+            realtime,
+            timescale,
+            external_clock,
+            start_datetime,
+            end_datetime,
+        )
         self.options.warmup_is_first_step = True
         self.options.timestep_duration = timedelta(minutes=1)
         self.simulation_step_duration = 1

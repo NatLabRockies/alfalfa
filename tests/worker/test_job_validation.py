@@ -1,6 +1,6 @@
-from alfalfa_worker.dispatcher import Dispatcher
-from alfalfa_worker.lib.enums import RunStatus
-from alfalfa_worker.lib.job import JobStatus
+from pacer_worker.dispatcher import Dispatcher
+from pacer_worker.lib.enums import RunStatus
+from pacer_worker.lib.job import JobStatus
 from tests.worker.jobs.validation_mock_job import ValidationMockJob
 from tests.worker.utilities import (
     send_message_and_wait,
@@ -15,8 +15,8 @@ def test_passing_validation(dispatcher: Dispatcher):
 
     wait_for_job_status(validation_job, JobStatus.WAITING)
 
-    response = send_message_and_wait(validation_job, 'create_file')
-    assert response['status'] == 'ok'
+    response = send_message_and_wait(validation_job, "create_file")
+    assert response["status"] == "ok"
 
     wait_for_job_status(validation_job, JobStatus.WAITING)
     validation_job.stop()

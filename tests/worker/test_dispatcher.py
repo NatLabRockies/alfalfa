@@ -1,7 +1,7 @@
-from alfalfa_worker.dispatcher import Dispatcher
-from alfalfa_worker.jobs.openstudio.create_run import CreateRun
-# from alfalfa_worker.jobs.openstudio.step_run import StepRun
-from alfalfa_worker.lib.job import JobStatus
+from pacer_worker.dispatcher import Dispatcher
+from pacer_worker.jobs.openstudio.create_run import CreateRun
+# from pacer_worker.jobs.openstudio.step_run import StepRun
+from pacer_worker.lib.job import JobStatus
 from tests.worker.jobs.basic_mock_job import BasicMockJob
 from tests.worker.utilities import wait_for_job_status
 
@@ -11,7 +11,9 @@ def test_valid_init(dispatcher):
 
 
 def test_get_builtin_job(dispatcher):
-    create_run_job = dispatcher.find_class('alfalfa_worker.jobs.openstudio.create_run.CreateRun')
+    create_run_job = dispatcher.find_class(
+        "pacer_worker.jobs.openstudio.create_run.CreateRun"
+    )
     assert create_run_job == CreateRun
 
 
@@ -21,7 +23,7 @@ def test_get_from_job_get_path(dispatcher):
 
 
 def test_test_job_create_with_params(dispatcher):
-    params = {'foo': 1, 'bar': 2}
+    params = {"foo": 1, "bar": 2}
     test_job = dispatcher.create_job(BasicMockJob.job_path(), params)
     assert test_job.foo == 1
     assert test_job.bar == 2
@@ -29,7 +31,7 @@ def test_test_job_create_with_params(dispatcher):
 
 
 def test_test_job_start(dispatcher):
-    params = {'foo': 1, 'bar': 2}
+    params = {"foo": 1, "bar": 2}
     test_job = dispatcher.start_job(BasicMockJob.job_path(), params)
     wait_for_job_status(test_job, JobStatus.RUNNING)
     test_job.stop()

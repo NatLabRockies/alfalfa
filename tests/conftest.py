@@ -1,18 +1,17 @@
 # -*- coding: utf-8 -*-
 """
-    Dummy conftest.py for alfalfa.
+Dummy conftest.py for pacer-webservice.
 
-    If you don't know what this is for, just leave it empty.
-    Read more about conftest.py under:
-    https://pytest.org/latest/plugins.html
+If you don't know what this is for, just leave it empty.
+Read more about conftest.py under:
+https://pytest.org/latest/plugins.html
 """
-
 
 from pathlib import Path
 
 import pytest
 
-from alfalfa_worker.dispatcher import Dispatcher
+from pacer_worker.dispatcher import Dispatcher
 from tests.worker.lib.mock_dispatcher import MockDispatcher
 
 
@@ -20,8 +19,8 @@ from tests.worker.lib.mock_dispatcher import MockDispatcher
 def dispatcher(tmp_path: Path):
     """Regular dispatcher with MockRunManager.
     Use for running MockJobs locally"""
-    run_dir = tmp_path / 'runs'
-    tmp_path / 's3'
+    run_dir = tmp_path / "runs"
+    tmp_path / "s3"
     dispatcher = Dispatcher(run_dir)
     yield dispatcher
 
@@ -30,7 +29,7 @@ def dispatcher(tmp_path: Path):
 def mock_dispatcher(tmp_path: Path):
     """MockDispatcher with regular RunManager.
     Use for running regular jobs in Docker"""
-    work_dir = (tmp_path / 'runs')
+    work_dir = tmp_path / "runs"
     work_dir.mkdir()
     dispatcher = MockDispatcher(work_dir)
     yield dispatcher
@@ -41,8 +40,8 @@ def pytest_addoption(parser):
 
 
 @pytest.fixture
-def alfalfa_host(pytestconfig: pytest.Config):
-    alfalfa_host = pytestconfig.getoption("host")
-    if isinstance(alfalfa_host, str):
-        alfalfa_host.rstrip('/')
-    return alfalfa_host
+def pacer_host(pytestconfig: pytest.Config):
+    pacer_host = pytestconfig.getoption("host")
+    if isinstance(pacer_host, str):
+        pacer_host.rstrip("/")
+    return pacer_host

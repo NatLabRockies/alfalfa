@@ -1,0 +1,29 @@
+{
+   "created_at" : "20170522T165538Z",
+   "seed_file" : "../seed.osm",
+   "steps" : [
+      {
+         "arguments" : {},
+         "measure_dir_name" : "pacer_setpoint_control",
+         "name" : "PACER Setpoint Control",
+         "description" : "Add Setpoint Control to PACER",
+         "modeler_description" : "Add Setpoint Control to PACER"
+      },
+      {
+         "arguments" : {},
+         "measure_dir_name" : "pacer_zone_sensors",
+         "name" : "PACER Zone Sensors",
+         "description" : "Add Zone Sensors",
+         "modeler_description" : "Add Zone Sensors"
+      },
+      {
+         "arguments" : {},
+         "measure_dir_name" : "pacer_metadata",
+         "name" : "Metadata",
+         "description" : "Generate metadata report for PACER",
+         "modeler_description" : "Generate metadata report for PACER"
+      }
+   ],
+   "updated_at" : "20170606T230145Z",
+   "weather_file" : "weather.epw"
+}

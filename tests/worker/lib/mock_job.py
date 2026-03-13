@@ -1,11 +1,10 @@
 import threading
 
-from alfalfa_worker.lib.job import Job
+from pacer_worker.lib.job import Job
 from tests.worker.lib.mock_redis import MockRedis
 
 
 class MockJob(Job):
-
     def __init__(self):
         self.redis = MockRedis()
         self.redis_pubsub = self.redis.pubsub()

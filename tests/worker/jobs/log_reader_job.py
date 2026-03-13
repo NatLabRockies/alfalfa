@@ -1,4 +1,4 @@
-from alfalfa_worker.lib.job import message
+from pacer_worker.lib.job import message
 from tests.worker.lib.mock_job import MockJob
 
 
@@ -9,5 +9,5 @@ class LogReaderJob(MockJob):
 
     @message
     def read_job_log(self):
-        job_log_file = self.dir / 'jobs.log'
+        job_log_file = self.dir / "jobs.log"
         return job_log_file.read_text()

@@ -3,9 +3,9 @@ import time
 from typing import Dict
 from uuid import uuid4
 
-from alfalfa_worker.lib.enums import RunStatus
-from alfalfa_worker.lib.job import Job, JobStatus
-from alfalfa_worker.lib.models import Run
+from pacer_worker.lib.enums import RunStatus
+from pacer_worker.lib.job import Job, JobStatus
+from pacer_worker.lib.models import Run
 
 
 def send_message(job: Job, method: str, params: Dict = {}):
@@ -13,7 +13,7 @@ def send_message(job: Job, method: str, params: Dict = {}):
     run_id = job.run.ref_id
 
     message_id = str(uuid4())
-    message = {'method': method, 'message_id': message_id, 'params': params}
+    message = {"method": method, "message_id": message_id, "params": params}
     redis.publish(run_id, json.dumps(message))
     return message_id
 
@@ -39,7 +39,9 @@ def wait_for_job_status(job: Job, desired_status: JobStatus, timeout: int = 120)
         if job.status == desired_status:
             return True
         time.sleep(0.5)
-    assert False, f"Desired Job Status: {desired_status} not reached. Current Status: {job.status}"
+    assert False, (
+        f"Desired Job Status: {desired_status} not reached. Current Status: {job.status}"
+    )
 
 
 def wait_for_run_status(run: Run, desired_status: RunStatus, timeout: int = 120):
@@ -48,4 +50,6 @@ def wait_for_run_status(run: Run, desired_status: RunStatus, timeout: int = 120)
         if run.status == desired_status:
             return True
         time.sleep(0.5)
-    assert False, f"Desired Run Status: {desired_status} not reached. Current Status: {run.status}"
+    assert False, (
+        f"Desired Run Status: {desired_status} not reached. Current Status: {run.status}"
+    )

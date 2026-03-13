@@ -49,7 +49,7 @@
         "options": {
           "awslogs-group": "awslogs-web",
           "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "alfalfa"
+          "awslogs-stream-prefix": "pacer"
         }
       }
     }
