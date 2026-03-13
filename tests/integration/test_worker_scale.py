@@ -13,11 +13,11 @@ WORKER_COUNT = 2
 
 
 @pytest.fixture
-def scale_models(alfalfa: AlfalfaClient):
+def scale_models(client: AlfalfaClient):
 
     MODEL_PATHS = []
-    MODEL_PATHS.append('wrapped.fmu')
-    MODEL_PATHS.append('small_office')
+    MODEL_PATHS.append("wrapped.fmu")
+    MODEL_PATHS.append("small_office")
 
     model_ids = []
 
@@ -28,7 +28,7 @@ def scale_models(alfalfa: AlfalfaClient):
             model_path = prepare_model(model_path)
 
             upload_paths.append(model_path)
-        model_ids.append(alfalfa.submit(upload_paths))
+        model_ids.append(client.submit(upload_paths))
 
     yield model_ids
 
@@ -37,19 +37,19 @@ def scale_models(alfalfa: AlfalfaClient):
     for model_id in [model_id for sublist in model_ids for model_id in sublist]:
         exception = None
         try:
-            status = alfalfa.status(model_id)
+            status = client.status(model_id)
             if status == "running":
                 stop_ids.append(model_id)
         except AlfalfaException as e:
             exception = e
     if len(stop_ids) > 0:
-        alfalfa.stop(stop_ids)
+        client.stop(stop_ids)
     if exception:
         raise exception
 
 
 @pytest.mark.scale
-def test_multiple_workers_simple_external_clock(scale_models, alfalfa: AlfalfaClient):
+def test_multiple_workers_simple_external_clock(scale_models, client: AlfalfaClient):
 
     for model_ids in scale_models:
         start_time = datetime(2019, 1, 2, 0, 0, 0)
@@ -57,25 +57,25 @@ def test_multiple_workers_simple_external_clock(scale_models, alfalfa: AlfalfaCl
         params = {
             "external_clock": True,
             "start_datetime": start_time,
-            "end_datetime": datetime(2019, 1, 3, 0, 0, 0)
+            "end_datetime": datetime(2019, 1, 3, 0, 0, 0),
         }
-        alfalfa.start(model_ids, **params)
+        client.start(model_ids, **params)
 
         calculated_model_time = start_time
 
         for _ in range(10):
-            alfalfa.advance(model_ids)
+            client.advance(model_ids)
             calculated_model_time += timedelta(minutes=1)
             for model_id in model_ids:
                 # -- Assert model gets to expected start time
-                model_time = alfalfa.get_sim_time(model_id)
+                model_time = client.get_sim_time(model_id)
                 assert calculated_model_time == model_time
 
-        alfalfa.stop(model_ids)
+        client.stop(model_ids)
 
 
 @pytest.mark.scale
-def test_multiple_workers_simple_internal_clock(scale_models, alfalfa: AlfalfaClient):
+def test_multiple_workers_simple_internal_clock(scale_models, client: AlfalfaClient):
 
     for model_ids in scale_models:
         start_time = datetime(2019, 1, 2, 0, 0, 0)
@@ -84,9 +84,9 @@ def test_multiple_workers_simple_internal_clock(scale_models, alfalfa: AlfalfaCl
             "external_clock": False,
             "start_datetime": start_time,
             "end_datetime": datetime(2019, 1, 2, 0, 5, 0),
-            "timescale": 5
+            "timescale": 5,
         }
-        alfalfa.start(model_ids, **params)
+        client.start(model_ids, **params)
 
         calculated_model_time = start_time
 
@@ -94,7 +94,7 @@ def test_multiple_workers_simple_internal_clock(scale_models, alfalfa: AlfalfaCl
         calculated_model_time += timedelta(minutes=5)
         for model_id in model_ids:
             # -- Assert model gets to expected start time
-            model_time = alfalfa.get_sim_time(model_id)
+            model_time = client.get_sim_time(model_id)
             assert calculated_model_time == model_time
 
-        alfalfa.stop(model_ids)
+        client.stop(model_ids)

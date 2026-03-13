@@ -7,12 +7,17 @@ from tests.integration.conftest import prepare_model
 
 
 @pytest.mark.integration
-def test_modelica_model(alfalfa: AlfalfaClient):
-    run_id = alfalfa.submit(prepare_model("wrapped.fmu"))
+def test_modelica_model(client: AlfalfaClient):
+    run_id = client.submit(prepare_model("wrapped.fmu"))
 
-    alfalfa.start(run_id, datetime(2019, 1, 1, 0, 0), datetime(2019, 1, 1, 0, 5), external_clock=True)
-    inputs = alfalfa.get_inputs(run_id)
-    outputs = alfalfa.get_outputs(run_id).keys()
+    client.start(
+        run_id,
+        datetime(2019, 1, 1, 0, 0),
+        datetime(2019, 1, 1, 0, 5),
+        external_clock=True,
+    )
+    inputs = client.get_inputs(run_id)
+    outputs = client.get_outputs(run_id).keys()
 
     assert "hvac_oveAhu_TSupSet_u" in inputs
     assert "hvac_oveAhu_dpSet_u" in inputs
@@ -140,6 +145,6 @@ def test_modelica_model(alfalfa: AlfalfaClient):
     assert "weaSta_reaWeaWinSpe_y" in outputs
 
     for _ in range(5):
-        alfalfa.advance(run_id)
+        client.advance(run_id)
 
-    alfalfa.stop(run_id)
+    client.stop(run_id)

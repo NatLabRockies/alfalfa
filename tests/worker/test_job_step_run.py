@@ -1,12 +1,11 @@
-
 from datetime import datetime
 from time import sleep
 
 import pytest
 
-from alfalfa_worker.dispatcher import Dispatcher
-from alfalfa_worker.lib.enums import RunStatus
-from alfalfa_worker.lib.job import JobStatus
+from pacer_worker.dispatcher import Dispatcher
+from pacer_worker.lib.enums import RunStatus
+from pacer_worker.lib.job import JobStatus
 from tests.worker.jobs.step_run_mock_job import StepRunMockJob
 from tests.worker.utilities import (
     send_message_and_wait,
@@ -26,7 +25,7 @@ def step_run_mock_job(dispatcher: Dispatcher):
         "start_datetime": str(datetime(2019, 1, 2, 0, 0, 0)),
         "end_datetime": str(datetime(2019, 1, 3, 0, 0, 0)),
         "timescale": "20",
-        "realtime": False
+        "realtime": False,
     }
 
     yield dispatcher.create_job(StepRunMockJob.job_path(), params)
@@ -46,7 +45,7 @@ def test_timescale(step_run_mock_job: StepRunMockJob):
 
     assert run.sim_time > first_time
 
-    send_message_and_wait(step_run_mock_job, 'stop')
+    send_message_and_wait(step_run_mock_job, "stop")
 
     wait_for_job_status(step_run_mock_job, JobStatus.STOPPED)
     wait_for_run_status(run, RunStatus.COMPLETE)
@@ -62,7 +61,11 @@ def test_timescale_error(step_run_mock_job: StepRunMockJob):
     wait_for_job_status(step_run_mock_job, JobStatus.RUNNING)
     wait_for_run_status(run, RunStatus.RUNNING)
 
-    send_message_and_wait(step_run_mock_job, 'set_simulation_step_duration', {'simulation_step_duration': 6})
+    send_message_and_wait(
+        step_run_mock_job,
+        "set_simulation_step_duration",
+        {"simulation_step_duration": 6},
+    )
 
     wait_for_job_status(step_run_mock_job, JobStatus.ERROR)
     wait_for_run_status(run, RunStatus.ERROR)

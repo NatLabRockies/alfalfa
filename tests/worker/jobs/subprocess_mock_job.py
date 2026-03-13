@@ -1,6 +1,6 @@
 from subprocess import check_call, check_output
 
-from alfalfa_worker.lib.job import message
+from pacer_worker.lib.job import message
 from tests.worker.lib.mock_job import MockJob
 
 

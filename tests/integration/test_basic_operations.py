@@ -5,59 +5,61 @@ from alfalfa_client.alfalfa_client import AlfalfaClient, RunID
 
 
 @pytest.mark.integration
-def test_simple_internal_clock(alfalfa: AlfalfaClient, ref_id: RunID):
-    alfalfa.wait(ref_id, "ready")
+def test_simple_internal_clock(client: AlfalfaClient, ref_id: RunID):
+    client.wait(ref_id, "ready")
 
     end_datetime = datetime(2019, 1, 2, 0, 2, 0)
-    alfalfa.start(
+    client.start(
         ref_id,
         external_clock=False,
         start_datetime=datetime(2019, 1, 2, 0, 0, 0),
         end_datetime=end_datetime,
-        timescale=10
+        timescale=10,
     )
     timescale_start = datetime.now()
 
     # Wait for model to complete
-    alfalfa.wait(ref_id, "complete")
+    client.wait(ref_id, "complete")
     timescale_end = datetime.now()
-    assert timescale_end - timescale_start < timedelta(minutes=1), "Timescale simulation took too long to complete"
-    model_time = alfalfa.get_sim_time(ref_id)
+    assert timescale_end - timescale_start < timedelta(minutes=1), (
+        "Timescale simulation took too long to complete"
+    )
+    model_time = client.get_sim_time(ref_id)
     assert end_datetime == model_time
 
 
 @pytest.mark.integration
-def test_simple_external_clock(alfalfa: AlfalfaClient, ref_id: RunID):
-    alfalfa.wait(ref_id, "ready")
+def test_simple_external_clock(client: AlfalfaClient, ref_id: RunID):
+    client.wait(ref_id, "ready")
     start_dt = datetime(2019, 1, 2, 0, 0, 0)
-    alfalfa.start(
+    client.start(
         ref_id,
         external_clock=True,
         start_datetime=start_dt,
-        end_datetime=datetime(2019, 1, 2, 0, 2, 0)
+        end_datetime=datetime(2019, 1, 2, 0, 2, 0),
     )
 
-    alfalfa.wait(ref_id, "running")
+    client.wait(ref_id, "running")
 
     # -- Assert model gets to expected start time
-    model_time = alfalfa.get_sim_time(ref_id)
+    model_time = client.get_sim_time(ref_id)
     # assert start_dt == model_time
     updated_dt = model_time
 
     for _ in range(2):
         # -- Advance a single time step
-        alfalfa.advance(ref_id)
+        client.advance(ref_id)
 
-        model_time = alfalfa.get_sim_time(ref_id)
+        model_time = client.get_sim_time(ref_id)
         updated_dt += timedelta(minutes=1)
         assert updated_dt == model_time
 
     # Shut down
-    alfalfa.stop(ref_id)
-    alfalfa.wait(ref_id, "complete")
+    client.stop(ref_id)
+    client.wait(ref_id, "complete")
 
 
 @pytest.mark.integration
-def test_alias(alfalfa: AlfalfaClient, ref_id: RunID):
-    alfalfa.set_alias("test", ref_id)
-    assert alfalfa.get_alias("test") == ref_id
+def test_alias(client: AlfalfaClient, ref_id: RunID):
+    client.set_alias("test", ref_id)
+    assert client.get_alias("test") == ref_id

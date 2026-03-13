@@ -8,7 +8,7 @@ import time
 from mongoengine import connect, disconnect_all
 
 # use the mongo test config file
-from alfalfa_worker.lib.models import Rec, Run, Site
+from pacer_worker.lib.models import Rec, Run, Site
 from tests.worker.helpers.mock_mongo_data import rec_data, run_data, site_data
 
 
@@ -17,7 +17,7 @@ class TestModelsObjects:
         """Create the connection to the mongodatabase since we are not loading the entire framework.
         Note that the config params are monkeypatched in the conftest file"""
         disconnect_all()
-        connect(host=f"{os.environ['MONGO_URL']}", uuidrepresentation='standard')
+        connect(host=f"{os.environ['MONGO_URL']}", uuidrepresentation="standard")
 
     def test_create_and_destroy_site(self):
         id_value = str(random.randint(0, 1024))
@@ -38,13 +38,17 @@ class TestModelsObjects:
         assert len(site) == 0
 
 
-class TestModelObjectsWithFixtures():
-
+class TestModelObjectsWithFixtures:
     def setup_method(self):
         """Create the connection to the mongodatabase since we are not loading the entire framework.
         Note that the config params are monkeypatched in the conftest file"""
         disconnect_all()
-        connect(host=f"{os.environ['MONGO_URL']}", uuidrepresentation='standard')
+        connect(host=f"{os.environ['MONGO_URL']}", uuidrepresentation="standard")
+
+        # Clean up any leftover data from previous runs before inserting fixtures
+        Run.drop_collection()
+        Rec.drop_collection()
+        Site.drop_collection()
 
         for datum in site_data:
             site = Site(**datum)
@@ -52,48 +56,46 @@ class TestModelObjectsWithFixtures():
 
         for datum in copy.deepcopy(rec_data):
             # check if there is a key to replace the site_id with the site object
-            if datum['site_id']:
-                site = Site.objects(ref_id=datum['site_id'])
-                datum['site'] = site[0]
+            if datum["site_id"]:
+                site = Site.objects(ref_id=datum["site_id"])
+                datum["site"] = site[0]
             # remove the site_id key since it is not a field in the Site model
-            del datum['site_id']
+            del datum["site_id"]
             Rec(**datum).save()
 
         for datum in copy.deepcopy(run_data):
-            if datum['site_id']:
-                site = Site.objects(ref_id=datum['site_id'])
-                datum['site'] = site[0]
+            if datum["site_id"]:
+                site = Site.objects(ref_id=datum["site_id"])
+                datum["site"] = site[0]
             # remove the site_id key since it is not a field in the Site model
-            del datum['site_id']
+            del datum["site_id"]
             Run(**datum).save()
 
             # TODO: grab the model object from the database and attach
 
     def teardown_method(self):
         """Remove all the data that was generated during this test"""
-        for datum in site_data:
-            site = Site.objects(ref_id=datum['ref_id']).first()
-            site.delete()
-
-        # the cascading delete will (should!) delete the recs as well
+        Run.drop_collection()
+        Rec.drop_collection()
+        Site.drop_collection()
 
     def test_relationships(self):
-        sites = Site.objects(ref_id__in=['123', '456'])
+        sites = Site.objects(ref_id__in=["123", "456"])
         assert len(sites) == 2
-        assert len(Rec.objects(ref_id__in=['site_456_rec_1', 'site_456_rec_2'])) == 2
+        assert len(Rec.objects(ref_id__in=["site_456_rec_1", "site_456_rec_2"])) == 2
 
         # verify the relationship between the site and the rec
         site = Site.objects()[1]
-        assert site.ref_id == '456'
+        assert site.ref_id == "456"
         assert site.recs().count() == 2
         rec_1 = site.recs()[0]
-        assert rec_1.ref_id == 'site_456_rec_1'
+        assert rec_1.ref_id == "site_456_rec_1"
 
     def test_site_rec_querying(self):
         # Based on the mock data, this is the object with 2 recs
         site = Site.objects()[1]
-        recs = site.recs(rec__damper='s:disabled')
+        recs = site.recs(rec__damper="s:disabled")
         assert len(recs) == 1
 
-        recs = site.recs(rec__damper='s:enabled')
+        recs = site.recs(rec__damper="s:enabled")
         assert len(recs) == 0

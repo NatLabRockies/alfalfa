@@ -1,14 +1,12 @@
-
-
-from alfalfa_worker.dispatcher import Dispatcher
-from alfalfa_worker.lib.job import JobStatus
+from pacer_worker.dispatcher import Dispatcher
+from pacer_worker.lib.job import JobStatus
 from tests.worker.jobs.basic_mock_job import BasicMockJob
 from tests.worker.jobs.errorred_mock_job import ErrorredMockJob
 from tests.worker.utilities import wait_for_job_status
 
 
 def test_mock_job_workflow(dispatcher: Dispatcher):
-    params = {'foo': 1, 'bar': 2}
+    params = {"foo": 1, "bar": 2}
     test_job = dispatcher.create_job(BasicMockJob.job_path(), params)
     wait_for_job_status(test_job, JobStatus.INITIALIZED)
     test_job.start()
@@ -24,7 +22,7 @@ def test_errorred_job_workflow(dispatcher: Dispatcher):
 
 
 def test_cannot_restart_stopped_job(dispatcher: Dispatcher):
-    params = {'foo': 1, 'bar': 2}
+    params = {"foo": 1, "bar": 2}
     test_job = dispatcher.create_job(BasicMockJob.job_path(), params)
     wait_for_job_status(test_job, JobStatus.INITIALIZED)
     test_job.start()

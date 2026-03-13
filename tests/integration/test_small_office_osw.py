@@ -7,45 +7,45 @@ from tests.integration.conftest import prepare_model
 
 
 @pytest.mark.integration
-def test_python_environment(alfalfa: AlfalfaClient):
-    zip_file_path = prepare_model('small_office')
-    model_id = alfalfa.submit(zip_file_path)
+def test_python_environment(client: AlfalfaClient):
+    zip_file_path = prepare_model("small_office")
+    model_id = client.submit(zip_file_path)
 
-    alfalfa.wait(model_id, "ready")
+    client.wait(model_id, "ready")
     start_dt = datetime.datetime(2019, 1, 2, 0, 2, 0)
-    alfalfa.start(
+    client.start(
         model_id,
         external_clock=False,
         start_datetime=start_dt,
         end_datetime=datetime.datetime(2019, 1, 3, 0, 0, 0),
-        timescale=1
+        timescale=1,
     )
 
-    alfalfa.wait(model_id, "running")
+    client.wait(model_id, "running")
 
-    alfalfa.advance([model_id])
+    client.advance([model_id])
 
-    alfalfa.stop(model_id)
-    alfalfa.wait(model_id, "complete")
+    client.stop(model_id)
+    client.wait(model_id, "complete")
 
 
 @pytest.mark.integration
-def test_io_enable_disable(alfalfa: AlfalfaClient):
-    zip_file_path = prepare_model('small_office')
-    site_id = alfalfa.submit(zip_file_path)
+def test_io_enable_disable(client: AlfalfaClient):
+    zip_file_path = prepare_model("small_office")
+    site_id = client.submit(zip_file_path)
 
-    alfalfa.wait(site_id, "ready")
+    client.wait(site_id, "ready")
     start_dt = datetime.datetime(2019, 1, 2, 0, 2, 0)
-    alfalfa.start(
+    client.start(
         site_id,
         external_clock=True,
         start_datetime=start_dt,
         end_datetime=datetime.datetime(2019, 1, 3, 0, 0, 0),
-        timescale=1
+        timescale=1,
     )
 
-    inputs = alfalfa.get_inputs(site_id)
-    outputs = alfalfa.get_outputs(site_id)
+    inputs = client.get_inputs(site_id)
+    outputs = client.get_outputs(site_id)
 
     # This is an Actuator
     assert "OfficeSmall HTGSETP_SCH_NO_OPTIMUM" in inputs
@@ -57,22 +57,24 @@ def test_io_enable_disable(alfalfa: AlfalfaClient):
     assert "Python Output" in outputs.keys(), "'Python Output' not found in 'outputs'"
 
     inputs = {"OfficeSmall HTGSETP_SCH_NO_OPTIMUM": 0, "Python Input": 20}
-    alfalfa.set_inputs(site_id, inputs)
+    client.set_inputs(site_id, inputs)
 
     for _ in range(5):
-        alfalfa.advance(site_id)
+        client.advance(site_id)
 
-        outputs = alfalfa.get_outputs(site_id)
+        outputs = client.get_outputs(site_id)
         assert outputs["OfficeSmall HTGSETP_SCH_NO_OPTIMUM"] == pytest.approx(0)
-        assert outputs["Python Output"] == pytest.approx(20), "'Python Output' has incorrect value"
+        assert outputs["Python Output"] == pytest.approx(20), (
+            "'Python Output' has incorrect value"
+        )
 
     inputs = {"OfficeSmall HTGSETP_SCH_NO_OPTIMUM": None, "Python Input": 0}
-    alfalfa.set_inputs(site_id, inputs)
-    alfalfa.advance(site_id)
+    client.set_inputs(site_id, inputs)
+    client.advance(site_id)
 
-    outputs = alfalfa.get_outputs(site_id)
+    outputs = client.get_outputs(site_id)
     assert outputs["OfficeSmall HTGSETP_SCH_NO_OPTIMUM"] != pytest.approx(0)
     assert outputs["Python Output"] == pytest.approx(0)
 
-    alfalfa.stop(site_id)
-    alfalfa.wait(site_id, "complete")
+    client.stop(site_id)
+    client.wait(site_id, "complete")

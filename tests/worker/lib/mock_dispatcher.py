@@ -2,12 +2,11 @@ import os
 import threading
 from pathlib import Path
 
-from alfalfa_worker.dispatcher import Dispatcher
-from alfalfa_worker.lib.job import Job
+from pacer_worker.dispatcher import Dispatcher
+from pacer_worker.lib.job import Job
 
 
 class MockDispatcher(Dispatcher):
-
     def __init__(self, workdir: Path):
         os.chdir(workdir)
         super().__init__(workdir)

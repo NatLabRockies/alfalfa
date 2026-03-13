@@ -5,7 +5,7 @@ exclude: |
     ^tests/integration/models|
     ^lib|
     ^deploy|
-    ^alfalfa_web/.babelrc|
+    ^pacer_web/.babelrc|
     ^.*osm$
   )
 

@@ -2,7 +2,9 @@
   "networkMode": "awsvpc",
   "cpu": "1024",
   "memory": "2GB",
-  "requiresCompatibilities": ["FARGATE"],
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
   "family": "worker",
   "taskRoleArn": "<%= @WORKER_ROLE_ARN%>",
   "executionRoleArn": "<%= @EXECUTION_ROLE_ARN%>",
@@ -22,7 +24,7 @@
         },
         {
           "name": "MONGO_DB_NAME",
-          "value": "alfalfa"
+          "value": "pacer"
         },
         {
           "name": "LOGLEVEL",
@@ -38,7 +40,7 @@
         "options": {
           "awslogs-group": "awslogs-worker",
           "awslogs-region": "us-east-1",
-          "awslogs-stream-prefix": "alfalfa"
+          "awslogs-stream-prefix": "pacer"
         }
       }
     }

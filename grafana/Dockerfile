@@ -6,6 +6,6 @@ ARG INFLUXDB_DB
 ARG INFLUXDB_ADMIN_USER
 ARG INFLUXDB_ADMIN_PASSWORD
 RUN printenv
-ADD ./provisioning /etc/grafana/provisioning
-ADD ./config.ini /etc/grafana/config.ini
-ADD ./dashboards /var/lib/grafana/dashboards
+COPY ./provisioning /etc/grafana/provisioning
+COPY ./config.ini /etc/grafana/config.ini
+COPY ./dashboards /var/lib/grafana/dashboards

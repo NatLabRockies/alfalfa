@@ -22,10 +22,10 @@ site_data = [
                 "id": "r:site_456_rec_2",
                 "dis": "s:HVAC Cooling Power",
                 "siteRef": "r:456",
-                "damper": "s:disabled"
-            }
-        ]
-    }
+                "damper": "s:disabled",
+            },
+        ],
+    },
 ]
 
 rec_data = [
@@ -36,7 +36,7 @@ rec_data = [
             "id": "r:site_456_rec_1",
             "geoCity": "s:Dayton Wright Patterson Afb",
             "geoCoord": "c:39.83,-84.05",
-        }
+        },
     },
     {
         "site_id": "456",
@@ -45,9 +45,9 @@ rec_data = [
             "id": "r:site_456_rec_2",
             "dis": "s:HVAC Cooling Power",
             "siteRef": "r:456",
-            "damper": "s:disabled"
-        }
-    }
+            "damper": "s:disabled",
+        },
+    },
 ]
 
 run_data = [
@@ -56,11 +56,9 @@ run_data = [
         # "model": ObjectId("63068c7a978fed816ee8e99e"),
         "site_id": "456",
         "ref_id": "run_id_123",
-        "job_history": [
-            "alfalfa_worker.jobs.openstudio.create_run.CreateRun"
-        ],
+        "job_history": ["pacer_worker.jobs.openstudio.create_run.CreateRun"],
         "sim_type": "OPENSTUDIO",
         "status": "READY",
-        "error_log": ""
+        "error_log": "",
     }
 ]

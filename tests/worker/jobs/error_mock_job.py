@@ -1,9 +1,8 @@
-from alfalfa_worker.lib.job import message
+from pacer_worker.lib.job import message
 from tests.worker.lib.mock_job import MockJob
 
 
 class ErrorMockJob(MockJob):
-
     def __init__(self):
         super().__init__()
         self.create_empty_run()

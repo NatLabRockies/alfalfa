@@ -5,7 +5,7 @@ services:
     environment:
       - HISTORIAN_ENABLE=true
   influxdb:
-    container_name: alfalfa_influxdb
+    container_name: pacer_influxdb
     image: influxdb:1.8
     hostname: ${INFLUXDB_HOST}
     ports:
@@ -17,7 +17,7 @@ services:
       - INFLUXDB_ADMIN_PASSWORD=${INFLUXDB_PASSWORD}
     restart: always
   grafana:
-    container_name: alfalfa_grafana
+    container_name: pacer_grafana
     build:
       context: "./grafana"
       args:
