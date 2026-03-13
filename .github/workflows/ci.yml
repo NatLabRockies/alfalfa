@@ -100,7 +100,7 @@ jobs:
       - name: Run job tests in Docker worker container
         run: |
           sleep 30
-          docker exec alfalfa-pacer-worker-1 bash -c "cd /pacer && poetry run pytest -m docker tests/jobs -o log_cli=true -o log_level=info"
+          docker exec alfalfa--worker-1 bash -c "cd /pacer && poetry run pytest -m docker tests/jobs -o log_cli=true -o log_level=info"
 
       - name: Dump docker logs on failure
         if: failure()
