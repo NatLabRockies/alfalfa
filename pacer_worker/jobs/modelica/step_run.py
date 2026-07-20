@@ -52,6 +52,19 @@ class StepRun(StepRunBase):
         # initiate the testcase -- NL make sure to flatten the config options to pass to kwargs correctly
         self.tc = TestCase(**config)
 
+        # If the uploaded FMU has no resources/kpis.json, the run still works
+        # but KPI reporting is disabled. Surface a non-fatal notice in the web
+        # UI telling the user why and how to fix it.
+        if getattr(self.tc, "kpi_json_missing", False):
+            self.add_run_notice(
+                "KPI reporting is disabled because the uploaded FMU does not "
+                "contain a 'resources/kpis.json' file. The simulation runs "
+                "normally, but no KPIs are computed. To enable KPIs, add a "
+                "'resources/kpis.json' file inside the FMU archive (a "
+                "BOPTEST-style KPI definition; use '{}' if you have none) and "
+                "re-upload the FMU."
+            )
+
         self.setup_points()
 
     def check_simulation_stop_conditions(self) -> bool:
