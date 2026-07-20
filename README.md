@@ -4,26 +4,26 @@ Alfalfa is an open source web application forged in the melting pot of Building 
 
 ## User Documentation
 
-Documentation resides in the [GitHub wiki](https://github.com/NREL/alfalfa/wiki)!
+Documentation resides in the [GitHub wiki](https://github.com/NatLabRockies/alfalfa/wiki)!
 
 ## Developer Documentation
 
-We are currently working on increasing our developer documentation. See how to run the tests on the [GitHub wiki](https://github.com/NREL/alfalfa/wiki/Running-Tests). For releasing, see the wiki's [release instructions](https://github.com/NREL/alfalfa/wiki/Release-Instructions).
+We are currently working on increasing our developer documentation. See how to run the tests on the [GitHub wiki](https://github.com/NatLabRockies/alfalfa/wiki/Running-Tests). For releasing, see the wiki's [release instructions](https://github.com/NatLabRockies/alfalfa/wiki/Release-Instructions).
 
 # Related Repositories
 
 ## Docker Images
 
-There are several docker images that are provided for easy deployment using [Alfalfa through Helm](https://github.com/NREL/alfalfa-helm) or other docker services. The images include:
+There are several docker images that are provided for easy deployment using [Alfalfa through Helm](https://github.com/NatLabRockies/alfalfa-helm) or other docker services. The images are published to the GitHub Container Registry under `ghcr.io/natlabrockies/pacer-webservice`:
 
-- [Alfalfa Web](https://hub.docker.com/repository/docker/nrel/alfalfa-web)
-- [Alfalfa Worker](https://hub.docker.com/repository/docker/nrel/alfalfa-worker)
-- [Alfalfa Grafana](https://hub.docker.com/repository/docker/nrel/alfalfa-grafana)
+- Alfalfa Web: `ghcr.io/natlabrockies/pacer-webservice/web`
+- Alfalfa Worker: `ghcr.io/natlabrockies/pacer-webservice/worker`
+- Alfalfa Grafana: `ghcr.io/natlabrockies/pacer-webservice/grafana`
 
 ## Python Notebooks
 
-An [Alfalfa Python Notebook repository](https://github.com/NREL/alfalfa-notebooks) contains examples on how to interact with Alfalfa.
+An [Alfalfa Python Notebook repository](https://github.com/NatLabRockies/alfalfa-notebooks) contains examples on how to interact with Alfalfa.
 
 ## Alfalfa Client
 
-The Alfalfa Client is a Python library for making API calls to Alfalfa easier. The source code is available on [GitHub](https://github.com/NREL/alfalfa-client) and the package is released through [PyPi](https://pypi.org/project/alfalfa-client/).
+The Alfalfa Client is a Python library for making API calls to Alfalfa easier. The source code is available on [GitHub](https://github.com/NatLabRockies/alfalfa-client) and the package is released through [PyPi](https://pypi.org/project/alfalfa-client/).

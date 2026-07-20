@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: "ghcr.io"
-  REGISTRY_BASE_URI: ghcr.io/nrel/pacer-webservice
+  REGISTRY_BASE_URI: ghcr.io/natlabrockies/pacer-webservice
 
 jobs:
   pre-commit:
