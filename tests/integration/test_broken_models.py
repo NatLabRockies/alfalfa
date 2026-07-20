@@ -1,8 +1,8 @@
 import datetime
 
 import pytest
-from pacer_client.pacer_client import PacerClient
 from pacer_client.lib import PacerException, create_zip
+from pacer_client.pacer_client import PacerClient
 
 
 @pytest.mark.integration

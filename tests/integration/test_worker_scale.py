@@ -3,8 +3,8 @@ from math import ceil
 from time import sleep
 
 import pytest
-from pacer_client.pacer_client import PacerClient
 from pacer_client.lib import PacerException
+from pacer_client.pacer_client import PacerClient
 
 from tests.integration.conftest import prepare_model
 
