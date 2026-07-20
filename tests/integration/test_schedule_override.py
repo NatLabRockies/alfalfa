@@ -1,13 +1,13 @@
 from datetime import datetime
 
 import pytest
-from alfalfa_client.alfalfa_client import AlfalfaClient
+from pacer_client.pacer_client import PacerClient
 
 from tests.integration.conftest import prepare_model
 
 
 @pytest.mark.integration
-def test_schedule_point_generation(client: AlfalfaClient):
+def test_schedule_point_generation(client: PacerClient):
     run_id = client.submit(prepare_model("schedule_model"))
 
     client.start(run_id, datetime(2020, 1, 1, 0, 0), datetime(2020, 1, 1, 0, 1))
@@ -36,7 +36,7 @@ def test_schedule_point_generation(client: AlfalfaClient):
 
 
 @pytest.mark.integration
-def test_schedule_override(client: AlfalfaClient):
+def test_schedule_override(client: PacerClient):
     site_id = client.submit(prepare_model("schedule_model"))
 
     client.start(

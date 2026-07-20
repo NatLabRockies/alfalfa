@@ -1,13 +1,13 @@
 import datetime
 
 import pytest
-from alfalfa_client.alfalfa_client import AlfalfaClient
+from pacer_client.pacer_client import PacerClient
 
 from tests.integration.conftest import prepare_model
 
 
 @pytest.mark.integration
-def test_python_environment(client: AlfalfaClient):
+def test_python_environment(client: PacerClient):
     zip_file_path = prepare_model("small_office")
     model_id = client.submit(zip_file_path)
 
@@ -30,7 +30,7 @@ def test_python_environment(client: AlfalfaClient):
 
 
 @pytest.mark.integration
-def test_io_enable_disable(client: AlfalfaClient):
+def test_io_enable_disable(client: PacerClient):
     zip_file_path = prepare_model("small_office")
     site_id = client.submit(zip_file_path)
 
