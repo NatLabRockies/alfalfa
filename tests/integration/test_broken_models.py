@@ -1,13 +1,13 @@
 import datetime
 
 import pytest
-from pacer_client.lib import PacerException, create_zip
-from pacer_client.pacer_client import PacerClient
+from alfalfa_client.lib import AlfalfaException, create_zip
+from alfalfa_client.alfalfa_client import AlfalfaClient
 
 
 @pytest.mark.integration
-def test_broken_models(broken_model_path, client: PacerClient):
-    with pytest.raises(PacerException):
+def test_broken_models(broken_model_path, client: AlfalfaClient):
+    with pytest.raises(AlfalfaException):
         run_id = client.submit(str(broken_model_path))
         client.start(
             run_id,
@@ -23,14 +23,14 @@ def test_broken_models(broken_model_path, client: PacerClient):
 
 
 @pytest.mark.integration
-def test_broken_python_models(client: PacerClient, broken_workflow_name):
+def test_broken_python_models(client: AlfalfaClient, broken_workflow_name):
     model_zip_path = create_zip(
         "tests/integration/broken_models/small_office/measures",
         "tests/integration/broken_models/small_office/weather",
         "tests/integration/broken_models/small_office/small_office.osm",
         f"tests/integration/broken_models/small_office/{broken_workflow_name}",
     )
-    with pytest.raises(PacerException):
+    with pytest.raises(AlfalfaException):
         run_id = client.submit(model_zip_path)
         client.start(
             run_id,

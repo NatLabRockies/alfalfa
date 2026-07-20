@@ -3,8 +3,8 @@ from math import ceil
 from time import sleep
 
 import pytest
-from pacer_client.lib import PacerException
-from pacer_client.pacer_client import PacerClient
+from alfalfa_client.lib import AlfalfaException
+from alfalfa_client.alfalfa_client import AlfalfaClient
 
 from tests.integration.conftest import prepare_model
 
@@ -13,7 +13,7 @@ WORKER_COUNT = 2
 
 
 @pytest.fixture
-def scale_models(client: PacerClient):
+def scale_models(client: AlfalfaClient):
 
     MODEL_PATHS = []
     MODEL_PATHS.append("wrapped.fmu")
@@ -40,7 +40,7 @@ def scale_models(client: PacerClient):
             status = client.status(model_id)
             if status == "running":
                 stop_ids.append(model_id)
-        except PacerException as e:
+        except AlfalfaException as e:
             exception = e
     if len(stop_ids) > 0:
         client.stop(stop_ids)
@@ -49,7 +49,7 @@ def scale_models(client: PacerClient):
 
 
 @pytest.mark.scale
-def test_multiple_workers_simple_external_clock(scale_models, client: PacerClient):
+def test_multiple_workers_simple_external_clock(scale_models, client: AlfalfaClient):
 
     for model_ids in scale_models:
         start_time = datetime(2019, 1, 2, 0, 0, 0)
@@ -75,7 +75,7 @@ def test_multiple_workers_simple_external_clock(scale_models, client: PacerClien
 
 
 @pytest.mark.scale
-def test_multiple_workers_simple_internal_clock(scale_models, client: PacerClient):
+def test_multiple_workers_simple_internal_clock(scale_models, client: AlfalfaClient):
 
     for model_ids in scale_models:
         start_time = datetime(2019, 1, 2, 0, 0, 0)

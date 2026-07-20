@@ -74,4 +74,4 @@ An [Alfalfa Python Notebook repository](https://github.com/NatLabRockies/alfalfa
 
 ## Alfalfa Client
 
-The Alfalfa Client is a Python library for making API calls to Alfalfa easier. The source code is available on [GitHub](https://github.com/NatLabRockies/alfalfa-client) and the package is released through [PyPi](https://pypi.org/project/pacer-client/).
+The Alfalfa Client is a Python library for making API calls to Alfalfa easier. The source code is available on [GitHub](https://github.com/NatLabRockies/alfalfa-client) and the package is released through [PyPi](https://pypi.org/project/alfalfa-client/).
