@@ -3,15 +3,15 @@ name = "pacer"
 version = "1.0.0"
 description = "Pacer web service converts building energy models in OpenStudio/EnergyPlus, Spawn of EnergyPlus, or Modelica to interactive virtual buildings."
 authors = [
-  'Kyle Benne <kyle.benne@nrel.gov>',
-  'Anya Petersen <Anya.Petersen@nrel.gov>',
-  'Nicholas Long <nicholas.long@nrel.gov>',
-  'Tobias Shapinsky <tobias.shapinsky@nrel.gov>',
-  'Alex Swindler <alex.swindler@nrel.gov>',
-  'Tim Coleman <tim.coleman@nrel.gov>',
+  'Kyle Benne <kyle.benne@nlr.gov>',
+  'Anya Petersen <Anya.Petersen@nlr.gov>',
+  'Nicholas Long <nicholas.long@nlr.gov>',
+  'Tobias Shapinsky <tobias.shapinsky@nlr.gov>',
+  'Alex Swindler <alex.swindler@nlr.gov>',
+  'Tim Coleman <tim.coleman@nlr.gov>',
   'Cory Mosiman <cory.mosiman12@gmail.com>',
-  'Brian Ball <brian.ball@nrel.gov>',
-  'Willy Bernal <willy.bernalheredia@nrel.gov>',
+  'Brian Ball <brian.ball@nlr.gov>',
+  'Willy Bernal <willy.bernalheredia@nlr.gov>',
 ]
 package-mode = false
 
