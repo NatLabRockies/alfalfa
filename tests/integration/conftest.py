@@ -3,7 +3,7 @@ import os
 from pathlib import Path
 
 import pytest
-from alfalfa_client.alfalfa_client import AlfalfaClient
+from pacer_client.pacer_client import PacerClient
 
 
 def pytest_generate_tests(metafunc):
@@ -32,12 +32,12 @@ def pytest_generate_tests(metafunc):
 
 @pytest.fixture
 def client(pacer_host: str):
-    client = AlfalfaClient(host=pacer_host)
+    client = PacerClient(host=pacer_host)
     yield client
 
 
 @pytest.fixture
-def ref_id(model_path: Path, client: AlfalfaClient):
+def ref_id(model_path: Path, client: PacerClient):
     ref_id = client.submit(model_path)
     yield ref_id
 

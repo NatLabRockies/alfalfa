@@ -1,13 +1,13 @@
 from datetime import datetime
 
 import pytest
-from alfalfa_client import AlfalfaClient
+from pacer_client import PacerClient
 
 from tests.integration.conftest import prepare_model
 
 
 @pytest.mark.integration
-def test_modelica_model(client: AlfalfaClient):
+def test_modelica_model(client: PacerClient):
     run_id = client.submit(prepare_model("wrapped.fmu"))
 
     client.start(

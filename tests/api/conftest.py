@@ -3,8 +3,8 @@ from datetime import datetime
 from pathlib import Path
 
 import pytest
-from alfalfa_client import AlfalfaClient
-from alfalfa_client.alfalfa_client import AlfalfaAPIException
+from pacer_client import PacerClient
+from pacer_client.pacer_client import PacerAPIException
 
 
 @pytest.fixture
@@ -14,7 +14,7 @@ def base_url(pacer_host: str):
 
 @pytest.fixture
 def alfalfa_client(pacer_host: str):
-    return AlfalfaClient(host=pacer_host)
+    return PacerClient(host=pacer_host)
 
 
 @pytest.fixture
@@ -23,12 +23,12 @@ def model_path():
 
 
 @pytest.fixture
-def model_id(alfalfa_client: AlfalfaClient, model_path):
+def model_id(alfalfa_client: PacerClient, model_path):
     return alfalfa_client.upload_model(model_path)
 
 
 @pytest.fixture
-def run_id(alfalfa_client: AlfalfaClient, model_path):
+def run_id(alfalfa_client: PacerClient, model_path):
     run_id = alfalfa_client.submit(model_path)
     yield run_id
     try:
@@ -39,12 +39,12 @@ def run_id(alfalfa_client: AlfalfaClient, model_path):
             "READY",
         ]:
             alfalfa_client.stop(run_id)
-    except AlfalfaAPIException:
+    except PacerAPIException:
         pass
 
 
 @pytest.fixture
-def started_run_id(alfalfa_client: AlfalfaClient, run_id):
+def started_run_id(alfalfa_client: PacerClient, run_id):
     alfalfa_client.start(
         run_id,
         datetime(2020, 1, 1, 0, 0),
