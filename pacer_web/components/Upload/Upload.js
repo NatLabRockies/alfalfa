@@ -22,22 +22,22 @@ export const Upload = () => {
     await ky.post(url, { body: formData });
   };
 
-  const createRun = async ({ modelID }) => {
-    await ky.post(`/api/v2/models/${modelID}/createRun`).json();
+  const createRun = async ({ modelId }) => {
+    await ky.post(`/api/v2/models/${modelId}/createRun`).json();
   };
 
   const upload = async () => {
     try {
       setUploading(true);
-      const uploadData = await ky
+      const { payload } = await ky
         .post("/api/v2/models/upload", {
           json: {
             modelName: modelFile.name
           }
         })
         .json();
-      await uploadFile(uploadData);
-      await createRun(uploadData);
+      await uploadFile(payload);
+      await createRun(payload);
     } catch (err) {
       console.error("Upload failed:", err);
     } finally {

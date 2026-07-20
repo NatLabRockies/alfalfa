@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { MoreVert } from "@mui/icons-material";
+import { InfoOutlined, MoreVert } from "@mui/icons-material";
 import { Button, Checkbox, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
 import ky from "ky";
 import { ErrorDialog } from "./ErrorDialog";
+import { NoticeDialog } from "./NoticeDialog";
 import { PointDialog } from "./PointDialog";
 import { StartDialog } from "./StartDialog";
 
@@ -11,6 +12,7 @@ export const Sites = () => {
   const [selected, setSelected] = useState([]);
   const [runs, setRuns] = useState([]);
   const [showErrorDialog, setShowErrorDialog] = useState(null);
+  const [showNoticeDialog, setShowNoticeDialog] = useState(null);
   const [showPointDialog, setShowPointDialog] = useState(null);
   const [showStartDialog, setShowStartDialog] = useState(null);
 
@@ -62,6 +64,11 @@ export const Sites = () => {
   const handleOpenErrorDialog = (event, run) => {
     event.stopPropagation();
     setShowErrorDialog(run);
+  };
+
+  const handleOpenNoticeDialog = (event, run) => {
+    event.stopPropagation();
+    setShowNoticeDialog(run);
   };
 
   const handleOpenPointDialog = (event, run) => {
@@ -119,6 +126,7 @@ export const Sites = () => {
   return (
     <Grid container direction="column">
       {showErrorDialog && <ErrorDialog run={showErrorDialog} onClose={() => setShowErrorDialog(null)} />}
+      {showNoticeDialog && <NoticeDialog run={showNoticeDialog} onClose={() => setShowNoticeDialog(null)} />}
       {showPointDialog && <PointDialog run={showPointDialog} onClose={() => setShowPointDialog(null)} />}
       {showStartDialog && (
         <StartDialog onStartSimulation={handleStartSimulation} onClose={() => setShowStartDialog(null)} />
@@ -158,6 +166,14 @@ export const Sites = () => {
                       </Button>
                     ) : (
                       run.status.toUpperCase()
+                    )}
+                    {run.notices && run.notices.length > 0 && (
+                      <IconButton
+                        size="small"
+                        title="This run has notices"
+                        onClick={(event) => handleOpenNoticeDialog(event, run)}>
+                        <InfoOutlined fontSize="small" color="info" />
+                      </IconButton>
                     )}
                   </TableCell>
                   <TableCell>{run.datetime}</TableCell>
