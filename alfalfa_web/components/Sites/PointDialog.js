@@ -23,19 +23,22 @@ export const PointDialog = ({ onClose, run }) => {
   const [expanded, setExpanded] = useState(false);
   const [points, setPoints] = useState();
 
-  useEffect(async () => {
-    const { payload: points } = await ky(`/api/v2/runs/${run.id}/points`).json();
-    await ky(`/api/v2/runs/${run.id}/points/values`)
-      .json()
-      .then(({ payload: values }) => {
-        for (const i in points) {
-          const point = points[i];
-          if (point.id in values) {
-            point.value = values[point.id];
+  useEffect(() => {
+    const fetchPoints = async () => {
+      const { payload: points } = await ky(`/api/v2/runs/${run.id}/points`).json();
+      await ky(`/api/v2/runs/${run.id}/points/values`)
+        .json()
+        .then(({ payload: values }) => {
+          for (const i in points) {
+            const point = points[i];
+            if (point.id in values) {
+              point.value = values[point.id];
+            }
           }
-        }
-        setPoints(points);
-      });
+          setPoints(points);
+        });
+    };
+    fetchPoints();
   }, []);
 
   const handleChange = (pointId) => (event, expanded) => {
