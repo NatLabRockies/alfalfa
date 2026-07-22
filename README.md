@@ -65,7 +65,7 @@ docker pull ghcr.io/natlabrockies/alfalfa/web:latest
 If the packages are private, authenticate first with a GitHub personal access token that has the `read:packages` scope:
 
 ```bash
-echo $GITHUB_TOKEN | docker login ghcr.io -u <github-username> --password-stdin
+echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-username> --password-stdin
 ```
 
 ## Python Notebooks
