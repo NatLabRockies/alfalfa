@@ -529,6 +529,11 @@ class Run(TimestampedDocument):
 
     error_log = StringField(default="")
 
+    # Non-fatal, user-facing notices about a run (e.g. an uploaded FMU is
+    # missing resources/kpis.json so KPI reporting is disabled). Surfaced in
+    # the web UI so users know why/how to fix without failing the run.
+    notices = ListField(StringField(), default=list)
+
 
 class Simulation(TimestampedDocument):
     meta = {'collection': 'simulation'}

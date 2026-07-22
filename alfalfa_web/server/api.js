@@ -64,7 +64,8 @@ class AlfalfaAPI {
       datetime: await this.getRunTime(run),
       simType: run.sim_type,
       uploadTimestamp: run.created,
-      errorLog: run.error_log
+      errorLog: run.error_log,
+      notices: run.notices || []
     };
     const model = await this.models.findOne({ _id: run.model });
     if (model) {
