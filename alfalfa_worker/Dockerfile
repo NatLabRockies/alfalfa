@@ -1,4 +1,4 @@
-FROM ghcr.io/nrel/alfalfa-dependencies:prepare_080 AS base
+FROM ghcr.io/natlabrockies/alfalfa-dependencies:prepare_080 AS base
 
 ENV HOME=/alfalfa
 
