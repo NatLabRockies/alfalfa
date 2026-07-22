@@ -345,7 +345,7 @@ items:
                   value: http://minio:9000
                 - name: S3_URL_EXTERNAL
                   value: http://localhost:9000
-              image: nrel/alfalfa-web:develop
+              image: ghcr.io/natlabrockies/alfalfa/web:develop
               imagePullPolicy: ""
               name: web
               ports:
@@ -415,7 +415,7 @@ items:
                   value: alfalfa
                 - name: S3_URL
                   value: http://minio:9000
-              image: nrel/alfalfa-worker:develop
+              image: ghcr.io/natlabrockies/alfalfa/worker:develop
               imagePullPolicy: ""
               name: worker
               resources: {}
