@@ -50,11 +50,23 @@ docker compose down          # or: docker compose down -v to also remove volumes
 
 ## Docker Images
 
-There are several docker images that are provided for easy deployment using [Alfalfa through Helm](https://github.com/NREL/alfalfa-helm) or other docker services. The images include:
+The Alfalfa docker images are published to the [GitHub Container Registry (GHCR)](https://ghcr.io) under the `natlabrockies` org for easy deployment via Helm or other docker services. The images include:
 
-- [Alfalfa Web](https://hub.docker.com/repository/docker/nrel/alfalfa-web)
-- [Alfalfa Worker](https://hub.docker.com/repository/docker/nrel/alfalfa-worker)
-- [Alfalfa Grafana](https://hub.docker.com/repository/docker/nrel/alfalfa-grafana)
+- [Alfalfa Web](https://github.com/orgs/NatLabRockies/packages/container/package/alfalfa%2Fweb) — `ghcr.io/natlabrockies/alfalfa/web`
+- [Alfalfa Worker](https://github.com/orgs/NatLabRockies/packages/container/package/alfalfa%2Fworker) — `ghcr.io/natlabrockies/alfalfa/worker`
+- [Alfalfa Grafana](https://github.com/orgs/NatLabRockies/packages/container/package/alfalfa%2Fgrafana) — `ghcr.io/natlabrockies/alfalfa/grafana`
+
+Pull an image with:
+
+```bash
+docker pull ghcr.io/natlabrockies/alfalfa/web:latest
+```
+
+If the packages are private, authenticate first with a GitHub personal access token that has the `read:packages` scope:
+
+```bash
+echo $GITHUB_TOKEN | docker login ghcr.io -u <github-username> --password-stdin
+```
 
 ## Python Notebooks
 
