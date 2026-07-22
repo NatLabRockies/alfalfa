@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: "ghcr.io"
-  REGISTRY_BASE_URI: ghcr.io/nrel/alfalfa
+  REGISTRY_BASE_URI: ghcr.io/natlabrockies/alfalfa
 
 jobs:
   pre-commit:

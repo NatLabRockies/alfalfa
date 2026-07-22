@@ -4,7 +4,7 @@ info:
   version: "1.0"
   description: >
     A REST API for controlling virtual buildings.
-    A collaboration between the [Alfalfa](https://github.com/nrel/alfalfa)
+    A collaboration between the [Alfalfa](https://github.com/NatLabRockies/alfalfa)
     and [BOPTEST](https://github.com/ibpsa/project1-boptest) projects.
 tags:
   - name: Point

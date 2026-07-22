@@ -3,15 +3,15 @@ name = "alfalfa"
 version = "1.0.0"
 description = "Alfalfa is a web service that converts building energy models in OpenStudio/EnergyPlus, Spawn of EnergyPlus, or Modelica to interactive virtual buildings."
 authors = [
-    'Kyle Benne <kyle.benne@nrel.gov>',
-    'Anya Petersen <Anya.Petersen@nrel.gov>',
-    'Nicholas Long <nicholas.long@nrel.gov>',
-    'Tobias Shapinsky <tobias.shapinsky@nrel.gov>',
-    'Alex Swindler <alex.swindler@nrel.gov>',
-    'Tim Coleman <tim.coleman@nrel.gov>',
+    'Kyle Benne <kyle.benne@nlr.gov>',
+    'Anya Petersen <Anya.Petersen@nlr.gov>',
+    'Nicholas Long <nicholas.long@nlr.gov>',
+    'Tobias Shapinsky <tobias.shapinsky@nlr.gov>',
+    'Alex Swindler <alex.swindler@nlr.gov>',
+    'Tim Coleman <tim.coleman@nlr.gov>',
     'Cory Mosiman <cory.mosiman12@gmail.com>',
-    'Brian Ball <brian.ball@nrel.gov>',
-    'Willy Bernal <willy.bernalheredia@nrel.gov>',
+    'Brian Ball <brian.ball@nlr.gov>',
+    'Willy Bernal <willy.bernalheredia@nlr.gov>',
 ]
 package-mode = false
 
@@ -34,7 +34,7 @@ influxdb = "^5.3.1"
 # and calling poetry update. I have had to completely remove my venv and reinstall in order
 # to get the latest updates.
 alfalfa-client = "1.0.0"
-# alfalfa-client = { git = "https://github.com/NREL/alfalfa-client.git", branch = "enhance_file_operations" }
+# alfalfa-client = { git = "https://github.com/NatLabRockies/alfalfa-client.git", branch = "enhance_file_operations" }
 autopep8 = "~2.0"
 pre-commit = "~2.21"
 pytest = "~7.2"
