@@ -6,9 +6,19 @@ than crashing on a comparison against None. Normal clamping behaviour must be
 preserved for FMUs that do declare bounds.
 
 Pure logic: TestCase.__new__ is used to bypass __init__ (which would load an
-FMU) so no FMU/pyfmi runtime or external services are required.
+FMU) so no FMU/pyfmi runtime or external services are required at runtime.
+However, alfalfa_worker.lib.testcase imports pyfmi (and, transitively,
+matplotlib via data_manager) at module scope. Those packages are only
+installed inside the worker Docker image (they are not poetry dependencies),
+so they aren't available in the unit-test/integration-test CI jobs. Skip
+collection there instead of erroring; the test still runs for real wherever
+the worker's full dependency set is installed (e.g. inside the worker Docker
+image).
 """
-from alfalfa_worker.lib.testcase import TestCase
+import pytest
+
+_testcase_module = pytest.importorskip("alfalfa_worker.lib.testcase")
+TestCase = _testcase_module.TestCase
 
 
 def _make_testcase(minimum, maximum):

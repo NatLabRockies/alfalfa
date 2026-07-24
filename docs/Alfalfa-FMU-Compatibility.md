@@ -28,7 +28,7 @@ Recommended (not required, but avoids warnings / improves behavior):
 ## How Alfalfa runs an FMU (so the contract makes sense)
 
 1. **Upload.** A file ending in `.fmu` is accepted and stored; Alfalfa renames it to
-   `model.fmu`. **No validation happens at upload** — a successful upload does *not*
+   `model.fmu`. **No validation happens at upload** — a successful upload does _not_
    mean the model will run.
 2. **Start.** Alfalfa loads the FMU (via `pyfmi.load_fmu`) and reads its model
    variables. It creates:
@@ -45,13 +45,13 @@ what prevents that.
 
 ## Hard requirements
 
-| Requirement | What to export | Why |
-|---|---|---|
-| **FMI version** | `2.0` | Alfalfa rejects anything else (`FMU must be version 2.0.`). |
-| **FMI kind** | **Co-Simulation** | Alfalfa steps the model itself; a Model-Exchange-only FMU has no solver to step. |
-| **Platform binary** | `binaries/linux64/<model>.so` | The worker is a Linux x86-64 container. Export/cross-compile the Linux binary even if you develop on macOS/Windows. |
-| **Causality** | `input` on variables to drive, `output` on variables to read | Only `input`/`output` variables become points. `parameter`/`local`/`internal` variables are ignored. |
-| **Names** | `snake_case`, no spaces | Names are used verbatim as point IDs; spaces are not sanitized reliably. |
+| Requirement         | What to export                                               | Why                                                                                                                 |
+| ------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
+| **FMI version**     | `2.0`                                                        | Alfalfa rejects anything else (`FMU must be version 2.0.`).                                                         |
+| **FMI kind**        | **Co-Simulation**                                            | Alfalfa steps the model itself; a Model-Exchange-only FMU has no solver to step.                                    |
+| **Platform binary** | `binaries/linux64/<model>.so`                                | The worker is a Linux x86-64 container. Export/cross-compile the Linux binary even if you develop on macOS/Windows. |
+| **Causality**       | `input` on variables to drive, `output` on variables to read | Only `input`/`output` variables become points. `parameter`/`local`/`internal` variables are ignored.                |
+| **Names**           | `snake_case`, no spaces                                      | Names are used verbatim as point IDs; spaces are not sanitized reliably.                                            |
 
 ---
 
@@ -63,13 +63,13 @@ Alfalfa supports **two** styles. Pick one per model.
 
 Just set standard Modelica causality. Names are used verbatim.
 
-| Modelica variable | Causality | Becomes |
-|---|---|---|
-| `T_in` | `input` | INPUT point `T_in` |
-| `m_flow` | `input` | INPUT point `m_flow` |
-| `u` | `input` | INPUT point `u` |
-| `Q_flow` | `output` | OUTPUT point `Q_flow` |
-| `T_out` | `output` | OUTPUT point `T_out` |
+| Modelica variable | Causality | Becomes               |
+| ----------------- | --------- | --------------------- |
+| `T_in`            | `input`   | INPUT point `T_in`    |
+| `m_flow`          | `input`   | INPUT point `m_flow`  |
+| `u`               | `input`   | INPUT point `u`       |
+| `Q_flow`          | `output`  | OUTPUT point `Q_flow` |
+| `T_out`           | `output`  | OUTPUT point `T_out`  |
 
 Nothing else is required. This is the right choice for the workbench's physical
 component wrappers (boiler, valve, pump, etc.).
@@ -79,11 +79,11 @@ component wrappers (boiler, valve, pump, etc.).
 Use this only if you want BOPTEST-style "enable/override" semantics. For each
 controllable signal you export a **pair** of inputs plus a suffixed output:
 
-| Variable | Causality | Role |
-|---|---|---|
-| `<name>_u` | `input` | the value to write |
-| `<name>_activate` | `input` | enable flag (`1` = use `_u`, `0` = use the model's own signal) |
-| `<name>_y` | `output` | the resulting/measured value |
+| Variable          | Causality | Role                                                           |
+| ----------------- | --------- | -------------------------------------------------------------- |
+| `<name>_u`        | `input`   | the value to write                                             |
+| `<name>_activate` | `input`   | enable flag (`1` = use `_u`, `0` = use the model's own signal) |
+| `<name>_y`        | `output`  | the resulting/measured value                                   |
 
 Alfalfa creates a single INPUT point named `<name>_u`. The `_activate` flag is
 **managed automatically**: when you set a value on the `_u` point Alfalfa writes
@@ -155,32 +155,32 @@ exists (write `{}` if not), confirm `binaries/linux64/*.so` is present, and re-z
 
 ## Compatibility checklist (per exported FMU)
 
-| Check | Pass condition |
-|---|---|
-| FMI version | `modelDescription.xml` → `fmiVersion="2.0"` |
-| Kind | `modelDescription.xml` contains `<CoSimulation ...>` |
-| Linux binary | `binaries/linux64/<model>.so` exists in the zip |
-| Inputs | ≥1 `ScalarVariable` with `causality="input"` |
-| Outputs | ≥1 `ScalarVariable` with `causality="output"` |
-| Names | no spaces / special characters |
-| KPIs (recommended) | `resources/kpis.json` present (may be `{}`) |
-| Bounds | `min`/`max` set **only** where clamping is intended |
+| Check              | Pass condition                                       |
+| ------------------ | ---------------------------------------------------- |
+| FMI version        | `modelDescription.xml` → `fmiVersion="2.0"`          |
+| Kind               | `modelDescription.xml` contains `<CoSimulation ...>` |
+| Linux binary       | `binaries/linux64/<model>.so` exists in the zip      |
+| Inputs             | ≥1 `ScalarVariable` with `causality="input"`         |
+| Outputs            | ≥1 `ScalarVariable` with `causality="output"`        |
+| Names              | no spaces / special characters                       |
+| KPIs (recommended) | `resources/kpis.json` present (may be `{}`)          |
+| Bounds             | `min`/`max` set **only** where clamping is intended  |
 
 ---
 
 ## Troubleshooting: symptom → likely cause
 
-| Symptom in Alfalfa | Likely cause | Fix |
-|---|---|---|
-| Run goes to **ERROR** immediately on start | FMU failed to load | Verify FMI 2.0 **Co-Simulation** and that `binaries/linux64/*.so` exists (not just macOS/Windows). |
-| `FMU must be version 2.0.` | Exported FMI 1.0 or 3.0 | Re-export as FMI 2.0. |
-| Loads but has **no INPUT/OUTPUT points** | No `input`/`output` causality declared | Mark driveable/observable variables with the correct causality. |
-| Web notice: *"no resources/kpis.json"* | KPI file not embedded | Add `resources/kpis.json` = `{}` (non-fatal; only a notice). |
-| Input value "ignored" / snapped to a limit | `min`/`max` declared → value clamped | Remove the bounds, or send a value within range. |
-| Model errors after a few steps with zero inputs | Physical assertion at default/zero inputs | Provide realistic start values and drive the inputs. |
+| Symptom in Alfalfa                              | Likely cause                              | Fix                                                                                                |
+| ----------------------------------------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Run goes to **ERROR** immediately on start      | FMU failed to load                        | Verify FMI 2.0 **Co-Simulation** and that `binaries/linux64/*.so` exists (not just macOS/Windows). |
+| `FMU must be version 2.0.`                      | Exported FMI 1.0 or 3.0                   | Re-export as FMI 2.0.                                                                              |
+| Loads but has **no INPUT/OUTPUT points**        | No `input`/`output` causality declared    | Mark driveable/observable variables with the correct causality.                                    |
+| Web notice: _"no resources/kpis.json"_          | KPI file not embedded                     | Add `resources/kpis.json` = `{}` (non-fatal; only a notice).                                       |
+| Input value "ignored" / snapped to a limit      | `min`/`max` declared → value clamped      | Remove the bounds, or send a value within range.                                                   |
+| Model errors after a few steps with zero inputs | Physical assertion at default/zero inputs | Provide realistic start values and drive the inputs.                                               |
 
 ---
 
-*Generated for Alfalfa. Behavior described here reflects Alfalfa's modelica job
+_Generated for Alfalfa. Behavior described here reflects Alfalfa's modelica job
 path, which accepts both plain OpenModelica Co-Simulation FMUs and BOPTEST-wrapped
-FMUs.*
+FMUs._

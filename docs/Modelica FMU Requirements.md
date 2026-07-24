@@ -3,7 +3,7 @@
 Alfalfa can run Functional Mock-up Units (FMUs) through its **modelica** job path.
 This document describes what an FMU must look like to upload **and run**
 successfully, and how to prepare FMUs exported from Modelica tools (e.g.
-OpenModelica, Dymola, the *FMU Compilation Workbench*) so they are compatible.
+OpenModelica, Dymola, the _FMU Compilation Workbench_) so they are compatible.
 
 ## How Alfalfa handles an FMU
 
@@ -11,7 +11,7 @@ OpenModelica, Dymola, the *FMU Compilation Workbench*) so they are compatible.
    modelica job by extension. `alfalfa_worker/jobs/modelica/create_run.py` simply
    copies the uploaded file to `model.fmu` and marks the run `READY`. **No FMU
    validation happens at upload time**, so an upload appearing to "succeed" does
-   *not* guarantee the model will run.
+   _not_ guarantee the model will run.
 2. **Run start.** When the run is started,
    `alfalfa_worker/jobs/modelica/step_run.py` → `initialize_simulation()` loads the
    FMU with `pyfmi.load_fmu` (via `alfalfa_worker/lib/testcase.py::TestCase`) and
@@ -26,13 +26,13 @@ which typically looks like "the FMU didn't upload" from the UI.
 
 An FMU must satisfy **all** of the following to run in Alfalfa:
 
-| Requirement | Detail |
-|---|---|
-| **FMI version** | `2.0`. Alfalfa rejects other versions (`TestCase` raises `FMU must be version 2.0.`). |
-| **FMI kind** | **Co-Simulation** (the FMU must contain a `<CoSimulation>` element). Model-Exchange-only FMUs are not supported. |
+| Requirement           | Detail                                                                                                                                                                                                                             |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **FMI version**       | `2.0`. Alfalfa rejects other versions (`TestCase` raises `FMU must be version 2.0.`).                                                                                                                                              |
+| **FMI kind**          | **Co-Simulation** (the FMU must contain a `<CoSimulation>` element). Model-Exchange-only FMUs are not supported.                                                                                                                   |
 | **Platform binaries** | The FMU must contain binaries for the **worker runtime platform, `linux64`** (`binaries/linux64/`). The worker runs inside a Linux container, so `darwin64`/`win64`-only FMUs will fail to load even if they work on your desktop. |
-| **Inputs** | Variables you want to drive must have causality `input`. |
-| **Outputs** | Variables you want to read must have causality `output`. |
+| **Inputs**            | Variables you want to drive must have causality `input`.                                                                                                                                                                           |
+| **Outputs**           | Variables you want to read must have causality `output`.                                                                                                                                                                           |
 
 ### Points and naming conventions
 
@@ -57,7 +57,7 @@ An FMU must satisfy **all** of the following to run in Alfalfa:
   every I/O variable. Alfalfa now **tolerates missing** unit/min/max/description
   (common for dimensionless control signals such as a `0..1` valve command).
 
-## Preparing *FMU Compilation Workbench* models
+## Preparing _FMU Compilation Workbench_ models
 
 The workbench exports FMI 2.0 Co-Simulation FMUs with `linux64` binaries and
 **plain** physical I/O (e.g. `BoilerPolynomial_FMU`: inputs `T_in`, `m_flow`,
