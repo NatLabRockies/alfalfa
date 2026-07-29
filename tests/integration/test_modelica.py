@@ -142,4 +142,11 @@ def test_modelica_model(alfalfa: AlfalfaClient):
     for _ in range(5):
         alfalfa.advance(run_id)
 
+    # Regression test: advance() must write each point's own scalar value,
+    # not the entire output dict (see step_run.py StepRun.advance). A
+    # regression here causes every output point to read back as None/NaN.
+    output_values = alfalfa.get_outputs(run_id)
+    assert output_values["chi_reaTSup_y"] is not None
+    assert isinstance(output_values["chi_reaTSup_y"], (int, float))
+
     alfalfa.stop(run_id)
