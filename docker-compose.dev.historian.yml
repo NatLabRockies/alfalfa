@@ -24,6 +24,8 @@ services:
       target: dev
     environment:
       - NODE_ENV=development
+      - HISTORIAN_ENABLE=true
+      - GRAFANA_URL_EXTERNAL
     volumes:
       - ./alfalfa_web:/srv/alfalfa
       # create volumes for the build and node_modules so that

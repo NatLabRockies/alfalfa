@@ -475,6 +475,15 @@ router.get("/version", (req, res) => {
   res.json({ payload: { version, ...sha } });
 });
 
+router.get("/config", (req, res) => {
+  res.json({
+    payload: {
+      historianEnabled: process.env.HISTORIAN_ENABLE === "true",
+      grafanaUrl: process.env.GRAFANA_URL_EXTERNAL || ""
+    }
+  });
+});
+
 router.get("/models", async (req, res, next) => {
   api
     .listModels()
