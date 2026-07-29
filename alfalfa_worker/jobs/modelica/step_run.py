@@ -64,6 +64,7 @@ class StepRun(StepRunBase):
         self.variables = {}
         input_names: list[str] = fmu.get_model_variables(causality=2).keys()
         output_names = fmu.get_model_variables(causality=3).keys()
+        inputs_metadata = getattr(self.tc, 'inputs_metadata', {})
 
         def name_to_id(name: str) -> str:
             name.replace(" ", "_")
@@ -80,7 +81,17 @@ class StepRun(StepRunBase):
             if activate:
                 self.variables[id]["activate"] = input
             else:
-                point = Point(ref_id=id, name=name, point_type=PointType.INPUT)
+                # Pull unit/min/max from the FMU's variable metadata (when available)
+                # so the write range can be surfaced and enforced elsewhere (e.g. the API and UI).
+                metadata = inputs_metadata.get(input, {})
+                point = Point(
+                    ref_id=id,
+                    name=name,
+                    point_type=PointType.INPUT,
+                    units=(metadata.get('Unit') or "")[:10],
+                    minimum=metadata.get('Minimum'),
+                    maximum=metadata.get('Maximum')
+                )
                 self.run.add_point(point)
 
         for output in output_names:

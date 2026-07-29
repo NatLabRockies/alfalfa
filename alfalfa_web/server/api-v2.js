@@ -298,23 +298,13 @@ router.get("/runs/:runId/points/:pointId", (req, res, next) => {
   }
 });
 
-router.put("/runs/:runId/points/:pointId", (req, res, next) => {
+router.put("/runs/:runId/points/:pointId", async (req, res, next) => {
   const { value } = req.body;
 
-  if (req.point.point_type == "OUTPUT") {
-    return res
-      .status(400)
-      .json({ message: `Point '${req.point.ref_id}' is of type '${req.point.point_type}' and cannot be written to` });
-  }
-
-  if (value !== null) {
-    const error = validate(
-      { value },
-      {
-        value: "required|strict|numeric"
-      }
-    );
-    if (error) return res.status(400).json({ message: error });
+  try {
+    await api.validatePointWrite(req.point, value);
+  } catch (message) {
+    return res.status(400).json({ message });
   }
 
   api
