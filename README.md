@@ -14,6 +14,21 @@ We are currently working on increasing our developer documentation. See how to r
 
 Alfalfa runs as a Docker Compose stack (web, worker, MongoDB, Redis, and MinIO). Configuration is read from the `.env` file in the repository root. Requires Docker with the Compose plugin.
 
+**Note for Apple Silicon (M1/M2/M3+) users:** the worker's base image (`alfalfa-dependencies`) is multi-arch, so a local `--build` on an arm64 Mac produces an arm64 worker image by default. Modelica FMUs only ship x86_64 (`binaries/linux64`) shared libraries, so an arm64 worker fails to load them with a misleading error such as:
+
+```text
+pyfmi.fmi.InvalidBinaryException: The FMU could not be loaded. Error loading the binary.
+Could not load the FMU binary: .../binaries/linux64/<Model>.so: cannot open shared object file: No such file or directory
+```
+
+This is an architecture mismatch, not a missing file — the prebuilt GHCR images work because CI builds them on amd64 runners. When building locally with `--build` (any mode below), force amd64:
+
+```bash
+export DOCKER_DEFAULT_PLATFORM=linux/amd64
+```
+
+This runs the worker under emulation (slower, but correct) and applies to every `docker compose ... --build` command in this section.
+
 ### Production mode
 
 Builds the optimized web bundle and runs the web service with `node build/index.js`:
@@ -38,7 +53,13 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 HISTORIAN_ENABLE=true docker compose -f docker-compose.yml -f docker-compose.historian.yml up --build
 ```
 
-Grafana is served at [http://localhost:3000](http://localhost:3000).
+Grafana is served at [http://localhost:3000](http://localhost:3000), with default login `admin` / `password` (set via `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` in `.env`).
+
+To run development mode (live-reload) together with the historian stack, use `docker-compose.dev.historian.yml` instead of chaining all three files:
+
+```bash
+HISTORIAN_ENABLE=true docker compose -f docker-compose.yml -f docker-compose.dev.historian.yml up --build
+```
 
 ### Stopping
 
