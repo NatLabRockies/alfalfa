@@ -128,7 +128,7 @@ export const PointDialog = ({ onClose, run }) => {
     setRunInfo(payload);
   };
 
-useEffect(() => {
+  useEffect(() => {
     fetchPoints().catch((err) => {
       console.error("Failed to load points:", err);
       setStepError("Failed to load points");
