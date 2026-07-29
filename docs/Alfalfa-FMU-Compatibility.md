@@ -27,11 +27,13 @@ Recommended (not required, but avoids warnings / improves behavior):
 
 ## How Alfalfa runs an FMU (so the contract makes sense)
 
-1. **Upload.** A file ending in `.fmu` is accepted and stored; Alfalfa renames it to
-   `model.fmu`. **No validation happens at upload** — a successful upload does _not_
-   mean the model will run.
-2. **Start.** Alfalfa loads the FMU (via `pyfmi.load_fmu`) and reads its model
-   variables. It creates:
+1. **Upload.** A file whose name ends in `.fmu` is routed to the modelica job by
+   extension (`alfalfa_worker/jobs/modelica/create_run.py`), which copies it to
+   `model.fmu` and marks the run `READY`. **No validation happens at upload** — a
+   successful upload does _not_ mean the model will run.
+2. **Start.** `alfalfa_worker/jobs/modelica/step_run.py` → `initialize_simulation()`
+   loads the FMU with `pyfmi.load_fmu` (via `alfalfa_worker/lib/testcase.py::TestCase`),
+   and `setup_points()` reads its model variables to create:
    - one **INPUT** point for each variable whose causality is `input`, and
    - one **OUTPUT** point for each variable whose causality is `output`.
 3. **Advance.** On each step Alfalfa writes the current input values into the FMU,
@@ -93,6 +95,25 @@ same as Style A).
 
 > Do **not** mix the styles for the same signal. If you export a lone `<name>_u`
 > without a matching `<name>_activate`, it is treated as a plain Style-A input.
+
+---
+
+## Worked example: a Workbench-exported FMU
+
+The workbench's physical component wrappers (e.g. `BoilerPolynomial_FMU`: inputs
+`T_in`, `m_flow`, `u`; outputs `Q_flow`, `T_out`) already follow Style A and, once
+built for `linux64`, run in Alfalfa without modification — they upload, reach
+`READY`, start `RUNNING`, and produce INPUT/OUTPUT points automatically.
+
+Two practical things to watch for with these single-component "two-port" wrappers:
+
+1. **Build for `linux64`.** Use the workbench's `output/build-linux64` target so
+   `binaries/linux64/*.so` is embedded; macOS/Windows-only binaries will not load
+   in the worker.
+2. **Provide meaningful inputs / start values.** Run with zero/default inputs and
+   the underlying Modelica component may hit physical assertions (e.g. `T >= 1 K`).
+   Drive the inputs (`T_in`, `m_flow`, `u`, …) with realistic values via the
+   Alfalfa client.
 
 ---
 
@@ -165,6 +186,21 @@ exists (write `{}` if not), confirm `binaries/linux64/*.so` is present, and re-z
 | Names              | no spaces / special characters                       |
 | KPIs (recommended) | `resources/kpis.json` present (may be `{}`)          |
 | Bounds             | `min`/`max` set **only** where clamping is intended  |
+
+---
+
+## Historical note: relaxed BOPTEST-only assumptions
+
+Earlier versions of `TestCase`/`Data_Manager` assumed every FMU was a
+BOPTEST-wrapped model and would raise before the run could start when:
+
+1. `resources/kpis.json` was missing from the FMU zip
+   (`KeyError: 'resources/kpis.json'`), and
+2. any non-`_activate` I/O variable had no declared `unit`
+   (`FMUException: No unit was found for the variable ...`).
+
+Both are now handled gracefully (see "Optional resources" above), so plain
+OpenModelica FMUs run without needing to be re-wrapped BOPTEST-style.
 
 ---
 
