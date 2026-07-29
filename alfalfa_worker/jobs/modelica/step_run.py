@@ -113,7 +113,7 @@ class StepRun(StepRunBase):
         influx_points = []
         for point in self.run.output_points:
             value = y_output[point.name]
-            point.value = y_output
+            point.value = value
 
             if self.options.historian_enabled:
                 influx_points.append({"fields":
