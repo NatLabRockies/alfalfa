@@ -128,9 +128,12 @@ export const PointDialog = ({ onClose, run }) => {
     setRunInfo(payload);
   };
 
-  useEffect(() => {
-    fetchPoints();
-  }, []);
+useEffect(() => {
+    fetchPoints().catch((err) => {
+      console.error("Failed to load points:", err);
+      setStepError("Failed to load points");
+    });
+  }, [run.id]);
 
   const handleChange = (pointId) => (event, expanded) => {
     setExpanded(expanded ? pointId : false);
