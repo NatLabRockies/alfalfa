@@ -3,7 +3,7 @@
 # container without needing to rebuild/restart Docker.
 #
 # Usage:
-#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build --scale worker=2
 
 services:
   web: # main haystack application
@@ -25,6 +25,10 @@ services:
       - /srv/alfalfa/build
       - /srv/alfalfa/node_modules
   worker:
+    # Modelica FMUs only ship x86_64 (binaries/linux64) shared libraries, and pyfmi
+    # has no arm64 support, so always run the worker as amd64 (under emulation on
+    # arm64 hosts such as Apple Silicon) even though the image is published multi-arch.
+    platform: linux/amd64
     build:
       # the purpose of context one level above is to install the entire alfalfa package
       # and to copy the wait-for-it.sh and start_worker.sh files in the deploy directory
