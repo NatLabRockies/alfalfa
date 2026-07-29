@@ -1,11 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { InfoOutlined, MoreVert } from "@mui/icons-material";
-import { Button, Checkbox, Grid, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from "@mui/material";
+import {
+  Button,
+  Checkbox,
+  Grid,
+  IconButton,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableRow,
+  TableSortLabel
+} from "@mui/material";
 import ky from "ky";
+import { DateTime } from "luxon";
 import { ErrorDialog } from "./ErrorDialog";
 import { NoticeDialog } from "./NoticeDialog";
 import { PointDialog } from "./PointDialog";
 import { StartDialog } from "./StartDialog";
+
+const columns = [
+  { id: "name", label: "Name" },
+  { id: "id", label: "ID" },
+  { id: "status", label: "Status" },
+  { id: "datetime", label: "Time" },
+  { id: "uploadTimestamp", label: "Uploaded" }
+];
+
+const formatUploadTimestamp = (timestamp) => {
+  if (!timestamp) return "";
+  return DateTime.fromISO(timestamp).toFormat("y-LL-dd HH:mm:ss");
+};
 
 export const Sites = () => {
   const [loading, setLoading] = useState(true);
@@ -15,6 +40,8 @@ export const Sites = () => {
   const [showNoticeDialog, setShowNoticeDialog] = useState(null);
   const [showPointDialog, setShowPointDialog] = useState(null);
   const [showStartDialog, setShowStartDialog] = useState(null);
+  const [orderBy, setOrderBy] = useState(null);
+  const [order, setOrder] = useState("asc");
 
   const validStates = {
     start: ["READY"],
@@ -39,6 +66,41 @@ export const Sites = () => {
   const isSelected = (runId) => selected.includes(runId);
 
   const selectedRuns = () => runs.filter(({ id }) => selected.includes(id));
+
+  const isAllSelected = () => runs.length > 0 && selected.length === runs.length;
+
+  const isSomeSelected = () => selected.length > 0 && selected.length < runs.length;
+
+  const handleSelectAll = (event) => {
+    setSelected(event.target.checked ? runs.map(({ id }) => id) : []);
+  };
+
+  const handleSort = (columnId) => {
+    if (orderBy === columnId) {
+      setOrder(order === "asc" ? "desc" : "asc");
+    } else {
+      setOrderBy(columnId);
+      setOrder("asc");
+    }
+  };
+
+  const sortedRuns = () => {
+    if (!orderBy) return runs;
+    const direction = order === "asc" ? 1 : -1;
+    return [...runs].sort((a, b) => {
+      const aValue = a[orderBy];
+      const bValue = b[orderBy];
+      if (aValue == null && bValue == null) return 0;
+      if (aValue == null) return 1;
+      if (bValue == null) return -1;
+      if (typeof aValue === "string" && typeof bValue === "string") {
+        return direction * aValue.localeCompare(bValue, undefined, { numeric: true, sensitivity: "base" });
+      }
+      if (aValue < bValue) return -direction;
+      if (aValue > bValue) return direction;
+      return 0;
+    });
+  };
 
   const handleRowClick = (event, runId) => {
     const newSelected = selected.includes(runId) ? selected.filter((id) => id !== runId) : [...selected, runId];
@@ -135,16 +197,24 @@ export const Sites = () => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell padding="checkbox" />
-              <TableCell>Name</TableCell>
-              <TableCell>ID</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell>Time</TableCell>
+              <TableCell padding="checkbox">
+                <Checkbox checked={isAllSelected()} indeterminate={isSomeSelected()} onChange={handleSelectAll} />
+              </TableCell>
+              {columns.map((column) => (
+                <TableCell key={column.id}>
+                  <TableSortLabel
+                    active={orderBy === column.id}
+                    direction={orderBy === column.id ? order : "asc"}
+                    onClick={() => handleSort(column.id)}>
+                    {column.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
               <TableCell>Points</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {runs.map((run) => {
+            {sortedRuns().map((run) => {
               return (
                 <TableRow
                   key={run.id}
@@ -177,6 +247,7 @@ export const Sites = () => {
                     )}
                   </TableCell>
                   <TableCell>{run.datetime}</TableCell>
+                  <TableCell>{formatUploadTimestamp(run.uploadTimestamp)}</TableCell>
                   <TableCell>
                     <IconButton onClick={(event) => handleOpenPointDialog(event, run)}>
                       <MoreVert />
@@ -206,7 +277,7 @@ export const Sites = () => {
           </Grid>
           <Grid item>
             <Button variant="contained" disabled={isRemoveButtonDisabled()} onClick={handleRemoveRun} sx={{ m: 1 }}>
-              Remove Test Case
+              Remove Test Case(s)
             </Button>
           </Grid>
           <Grid item>
