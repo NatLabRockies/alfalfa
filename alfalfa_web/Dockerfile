@@ -1,4 +1,4 @@
-FROM node:22-slim AS base
+FROM node:26-slim AS base
 ARG GIT_COMMIT
 ENV GIT_COMMIT=$GIT_COMMIT
 
