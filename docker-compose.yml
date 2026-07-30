@@ -67,6 +67,10 @@ services:
     depends_on:
       - minio
   worker:
+    # Modelica FMUs only ship x86_64 (binaries/linux64) shared libraries, and pyfmi
+    # has no arm64 support, so always run the worker as amd64 (under emulation on
+    # arm64 hosts such as Apple Silicon) even though the image is published multi-arch.
+    platform: linux/amd64
     build:
       # the purpose of context one level above is to install the entire alfalfa package
       # and to copy the wait-for-it.sh and start_worker.sh files in the `deploy` directory
