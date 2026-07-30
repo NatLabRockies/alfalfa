@@ -475,6 +475,21 @@ router.get("/version", (req, res) => {
   res.json({ payload: { version, ...sha } });
 });
 
+// Path (including dashboard uid + slug) of the "Simple Dashboard" provisioned in
+// grafana/dashboards/Simple TS Dashboard.json. Kept alongside the historian config
+// so the UI can link directly into it without hard-coding Grafana details.
+const GRAFANA_DASHBOARD_PATH = "/d/YxaCy4PMk/simple-dashboard";
+
+router.get("/config", (req, res) => {
+  res.json({
+    payload: {
+      historianEnabled: process.env.HISTORIAN_ENABLE === "true",
+      grafanaUrl: process.env.GRAFANA_URL_EXTERNAL || "",
+      grafanaDashboardPath: GRAFANA_DASHBOARD_PATH
+    }
+  });
+});
+
 router.get("/models", async (req, res, next) => {
   api
     .listModels()

@@ -14,6 +14,15 @@ We are currently working on increasing our developer documentation. See how to r
 
 Alfalfa runs as a Docker Compose stack (web, worker, MongoDB, Redis, and MinIO). Configuration is read from the `.env` file in the repository root. Requires Docker with the Compose plugin.
 
+**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs only ship x86_64 (`binaries/linux64`) shared libraries, and pyfmi has no arm64 support, so the `worker` service is pinned to `platform: linux/amd64` in `docker-compose.yml` and runs under emulation on arm64 hosts (slower, but correct). This applies whether the worker image is pulled prebuilt from GHCR (which is published multi-arch, including a native arm64 variant that would otherwise be selected automatically) or built locally with `--build`. If you don't pin the platform (e.g. running the worker image directly with `docker run`, outside Compose), an arm64 worker will fail to load FMUs with a misleading error such as:
+
+```text
+pyfmi.fmi.InvalidBinaryException: The FMU could not be loaded. Error loading the binary.
+Could not load the FMU binary: .../binaries/linux64/<Model>.so: cannot open shared object file: No such file or directory
+```
+
+This is an architecture mismatch, not a missing file — force amd64 with `export DOCKER_DEFAULT_PLATFORM=linux/amd64` (or an explicit `--platform linux/amd64`) in that case.
+
 ### Production mode
 
 Builds the optimized web bundle and runs the web service with `node build/index.js`:
@@ -38,7 +47,13 @@ docker compose -f docker-compose.yml -f docker-compose.dev.yml up --build
 HISTORIAN_ENABLE=true docker compose -f docker-compose.yml -f docker-compose.historian.yml up --build
 ```
 
-Grafana is served at [http://localhost:3000](http://localhost:3000).
+Grafana is served at [http://localhost:3000](http://localhost:3000), with default login `admin` / `password` (set via `GF_SECURITY_ADMIN_USER` / `GF_SECURITY_ADMIN_PASSWORD` in `.env`). When enabled, a **Historian** button also appears in the Alfalfa web app's nav bar, opening Grafana in a new tab (it's hidden when the historian is disabled). The URL it links to is controlled by `GRAFANA_URL_EXTERNAL` in `.env` (defaults to `http://localhost:3000`) — update this if Grafana is reachable at a different host/port for your deployment.
+
+To run development mode (live-reload) together with the historian stack, use `docker-compose.dev.historian.yml` instead of chaining all three files:
+
+```bash
+HISTORIAN_ENABLE=true docker compose -f docker-compose.yml -f docker-compose.dev.historian.yml up --build
+```
 
 ### Stopping
 

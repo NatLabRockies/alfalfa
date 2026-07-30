@@ -1,10 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { InfoOutlined, MoreVert } from "@mui/icons-material";
+import { Delete, Download, InfoOutlined, Insights, MoreVert, PlayArrow, Stop, Visibility } from "@mui/icons-material";
 import {
   Button,
   Checkbox,
+  Divider,
   Grid,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Table,
   TableBody,
   TableCell,
@@ -27,21 +32,64 @@ const columns = [
   { id: "uploadTimestamp", label: "Uploaded" }
 ];
 
+// Matches the "y-LL-dd HH:mm:ss" format start/end datetimes are submitted in
+// (see StartDialog) and stored/interpreted as UTC by the historian.
+const simDatetimeFormat = "y-LL-dd HH:mm:ss";
+
 const formatUploadTimestamp = (timestamp) => {
   if (!timestamp) return "";
   return DateTime.fromISO(timestamp).toFormat("y-LL-dd HH:mm:ss");
 };
 
-export const Sites = () => {
+// Builds a Grafana URL for the historian dashboard, pre-scoped to this run's
+// id and simulated time window.
+const buildHistorianUrl = (run, historianConfig) => {
+  const base = historianConfig.grafanaUrl.replace(/\/+$/, "");
+  const params = new URLSearchParams({ orgId: "1", "var-run_id": run.id });
+  // Auto-refresh only while the simulation is actively running; a finished/not-yet-started
+  // run has no new data coming in, so a static view is more appropriate.
+  if (run.status === "RUNNING") params.set("refresh", "5s");
+
+  if (run.simDatetimeStart) {
+    const from = DateTime.fromFormat(run.simDatetimeStart, simDatetimeFormat, { zone: "utc" });
+    if (from.isValid) params.set("from", from.toMillis());
+  }
+  if (run.simDatetimeEnd) {
+    const to = DateTime.fromFormat(run.simDatetimeEnd, simDatetimeFormat, { zone: "utc" });
+    if (to.isValid) params.set("to", to.toMillis());
+  }
+
+  return `${base}${historianConfig.grafanaDashboardPath}?${params.toString()}`;
+};
+
+// Persist the selected sort column/direction across navigation and reloads.
+const SORT_STORAGE_KEY = "alfalfa.sites.sort";
+
+const loadStoredSort = () => {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SORT_STORAGE_KEY));
+    if (stored && columns.some(({ id }) => id === stored.orderBy) && ["asc", "desc"].includes(stored.order)) {
+      return stored;
+    }
+  } catch {
+    // ignore malformed/missing storage and fall back to defaults
+  }
+  return { orderBy: null, order: "asc" };
+};
+
+export const Sites = ({ historianConfig = { historianEnabled: false, grafanaUrl: "", grafanaDashboardPath: "" } }) => {
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState([]);
   const [runs, setRuns] = useState([]);
   const [showErrorDialog, setShowErrorDialog] = useState(null);
   const [showNoticeDialog, setShowNoticeDialog] = useState(null);
   const [showPointDialog, setShowPointDialog] = useState(null);
-  const [showStartDialog, setShowStartDialog] = useState(null);
-  const [orderBy, setOrderBy] = useState(null);
-  const [order, setOrder] = useState("asc");
+  // Holds the run(s) targeted by the Start dialog, whether opened via the bulk
+  // "Start Test" button (checkbox selection) or a single row's menu item.
+  const [startDialogTargets, setStartDialogTargets] = useState(null);
+  const [rowMenuAnchorEl, setRowMenuAnchorEl] = useState(null);
+  const [rowMenuRun, setRowMenuRun] = useState(null);
+  const [{ orderBy, order }, setSort] = useState(loadStoredSort);
 
   const validStates = {
     start: ["READY"],
@@ -76,12 +124,14 @@ export const Sites = () => {
   };
 
   const handleSort = (columnId) => {
-    if (orderBy === columnId) {
-      setOrder(order === "asc" ? "desc" : "asc");
-    } else {
-      setOrderBy(columnId);
-      setOrder("asc");
-    }
+    setSort((current) => {
+      const next =
+        current.orderBy === columnId
+          ? { orderBy: columnId, order: current.order === "asc" ? "desc" : "asc" }
+          : { orderBy: columnId, order: "asc" };
+      localStorage.setItem(SORT_STORAGE_KEY, JSON.stringify(next));
+      return next;
+    });
   };
 
   const sortedRuns = () => {
@@ -133,13 +183,29 @@ export const Sites = () => {
     setShowNoticeDialog(run);
   };
 
-  const handleOpenPointDialog = (event, run) => {
+  const handleOpenRowMenu = (event, run) => {
     event.stopPropagation();
+    setRowMenuAnchorEl(event.currentTarget);
+    setRowMenuRun(run);
+  };
+
+  const handleCloseRowMenu = () => {
+    setRowMenuAnchorEl(null);
+    setRowMenuRun(null);
+  };
+
+  const handleOpenPointDialog = (run) => {
     setShowPointDialog(run);
+    handleCloseRowMenu();
+  };
+
+  const handleOpenHistorian = (run) => {
+    window.open(buildHistorianUrl(run, historianConfig), "_blank", "noopener,noreferrer");
+    handleCloseRowMenu();
   };
 
   const handleStartSimulation = (startDatetime, endDatetime, timescale, realtime, externalClock) => {
-    selectedRuns()
+    (startDialogTargets || [])
       .filter(({ status }) => validStates.start.includes(status))
       .map(async ({ id }) => {
         await ky
@@ -156,31 +222,32 @@ export const Sites = () => {
       });
   };
 
-  const handleStopSimulation = () => {
-    selectedRuns()
+  const handleStopSimulation = (targetRuns = selectedRuns()) => {
+    targetRuns
       .filter(({ status }) => validStates.stop.includes(status))
       .map(async ({ id }) => {
         await ky.post(`/api/v2/runs/${id}/stop`).json();
       });
+    handleCloseRowMenu();
   };
 
-  const handleRemoveRun = () => {
-    selectedRuns()
+  const handleRemoveRun = (targetRuns = selectedRuns()) => {
+    targetRuns
       .filter(({ status }) => validStates.remove.includes(status))
       .map(async ({ id }) => {
         await ky.delete(`/api/v2/runs/${id}`).json();
       });
+    handleCloseRowMenu();
   };
 
-  const handleDownloadRun = async () => {
-    const ids = selectedRuns()
-      .filter(({ status }) => validStates.download.includes(status))
-      .map(({ id }) => id);
+  const handleDownloadRun = async (targetRuns = selectedRuns()) => {
+    const ids = targetRuns.filter(({ status }) => validStates.download.includes(status)).map(({ id }) => id);
 
     for (const id of ids) {
       location.href = `/api/v2/runs/${id}/download`;
       await new Promise((resolve) => setTimeout(resolve, 500));
     }
+    handleCloseRowMenu();
   };
 
   if (loading) return null;
@@ -190,9 +257,64 @@ export const Sites = () => {
       {showErrorDialog && <ErrorDialog run={showErrorDialog} onClose={() => setShowErrorDialog(null)} />}
       {showNoticeDialog && <NoticeDialog run={showNoticeDialog} onClose={() => setShowNoticeDialog(null)} />}
       {showPointDialog && <PointDialog run={showPointDialog} onClose={() => setShowPointDialog(null)} />}
-      {showStartDialog && (
-        <StartDialog onStartSimulation={handleStartSimulation} onClose={() => setShowStartDialog(null)} />
+      {startDialogTargets && (
+        <StartDialog onStartSimulation={handleStartSimulation} onClose={() => setStartDialogTargets(null)} />
       )}
+      <Menu anchorEl={rowMenuAnchorEl} open={Boolean(rowMenuAnchorEl)} onClose={handleCloseRowMenu}>
+        <MenuItem onClick={() => handleOpenPointDialog(rowMenuRun)}>
+          <ListItemIcon>
+            <Visibility fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Inspect Points</ListItemText>
+        </MenuItem>
+        <Divider />
+        <MenuItem
+          disabled={!rowMenuRun || !validStates.start.includes(rowMenuRun.status)}
+          onClick={() => {
+            setStartDialogTargets([rowMenuRun]);
+            handleCloseRowMenu();
+          }}>
+          <ListItemIcon>
+            <PlayArrow fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Start</ListItemText>
+        </MenuItem>
+        <MenuItem
+          disabled={!rowMenuRun || !validStates.stop.includes(rowMenuRun.status)}
+          onClick={() => handleStopSimulation([rowMenuRun])}>
+          <ListItemIcon>
+            <Stop fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Stop</ListItemText>
+        </MenuItem>
+        <MenuItem
+          disabled={!rowMenuRun || !validStates.remove.includes(rowMenuRun.status)}
+          onClick={() => handleRemoveRun([rowMenuRun])}>
+          <ListItemIcon>
+            <Delete fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Remove</ListItemText>
+        </MenuItem>
+        <MenuItem
+          disabled={!rowMenuRun || !validStates.download.includes(rowMenuRun.status)}
+          onClick={() => handleDownloadRun([rowMenuRun])}>
+          <ListItemIcon>
+            <Download fontSize="small" />
+          </ListItemIcon>
+          <ListItemText>Download</ListItemText>
+        </MenuItem>
+        {historianConfig.historianEnabled && historianConfig.grafanaUrl && (
+          <React.Fragment>
+            <Divider />
+            <MenuItem onClick={() => handleOpenHistorian(rowMenuRun)}>
+              <ListItemIcon>
+                <Insights fontSize="small" />
+              </ListItemIcon>
+              <ListItemText>Open in Historian</ListItemText>
+            </MenuItem>
+          </React.Fragment>
+        )}
+      </Menu>
       <Grid item>
         <Table>
           <TableHead>
@@ -210,7 +332,7 @@ export const Sites = () => {
                   </TableSortLabel>
                 </TableCell>
               ))}
-              <TableCell>Points</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -249,7 +371,7 @@ export const Sites = () => {
                   <TableCell>{run.datetime}</TableCell>
                   <TableCell>{formatUploadTimestamp(run.uploadTimestamp)}</TableCell>
                   <TableCell>
-                    <IconButton onClick={(event) => handleOpenPointDialog(event, run)}>
+                    <IconButton onClick={(event) => handleOpenRowMenu(event, run)}>
                       <MoreVert />
                     </IconButton>
                   </TableCell>
@@ -265,23 +387,35 @@ export const Sites = () => {
             <Button
               variant="contained"
               disabled={isStartButtonDisabled()}
-              onClick={() => setShowStartDialog(true)}
+              onClick={() => setStartDialogTargets(selectedRuns())}
               sx={{ m: 1 }}>
               Start Test
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" disabled={isStopButtonDisabled()} onClick={handleStopSimulation} sx={{ m: 1 }}>
+            <Button
+              variant="contained"
+              disabled={isStopButtonDisabled()}
+              onClick={() => handleStopSimulation()}
+              sx={{ m: 1 }}>
               Stop Test
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" disabled={isRemoveButtonDisabled()} onClick={handleRemoveRun} sx={{ m: 1 }}>
+            <Button
+              variant="contained"
+              disabled={isRemoveButtonDisabled()}
+              onClick={() => handleRemoveRun()}
+              sx={{ m: 1 }}>
               Remove Test Case(s)
             </Button>
           </Grid>
           <Grid item>
-            <Button variant="contained" disabled={isDownloadButtonDisabled()} onClick={handleDownloadRun} sx={{ m: 1 }}>
+            <Button
+              variant="contained"
+              disabled={isDownloadButtonDisabled()}
+              onClick={() => handleDownloadRun()}
+              sx={{ m: 1 }}>
               Download Run
             </Button>
           </Grid>

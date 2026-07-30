@@ -66,7 +66,9 @@ class AlfalfaAPI {
       uploadTimestamp: run.created,
       errorLog: run.error_log,
       notices: run.notices || [],
-      externalClock: run.external_clock === true
+      externalClock: run.external_clock === true,
+      simDatetimeStart: run.sim_datetime_start || null,
+      simDatetimeEnd: run.sim_datetime_end || null
     };
     const model = await this.models.findOne({ _id: run.model });
     if (model) {
@@ -230,9 +232,19 @@ class AlfalfaAPI {
       external_clock: `${!!externalClock}`
     };
 
-    // Persist the clock mode on the run so the UI can tell whether this run
-    // needs to be stepped manually (external clock) vs. advances on its own.
-    await this.runs.updateOne({ _id: run._id }, { $set: { external_clock: !!externalClock } });
+    // Persist the clock mode and simulated time window on the run so the UI can
+    // tell whether this run needs to be stepped manually (external clock) vs.
+    // advances on its own, and can link to the historian with the correct range.
+    await this.runs.updateOne(
+      { _id: run._id },
+      {
+        $set: {
+          external_clock: !!externalClock,
+          sim_datetime_start: startDatetime,
+          sim_datetime_end: endDatetime
+        }
+      }
+    );
 
     await this.sendJobToQueue(job, params);
   };

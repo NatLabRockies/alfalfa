@@ -539,6 +539,12 @@ class Run(TimestampedDocument):
     # realtime clock. Set by the web API when a run is started.
     external_clock = BooleanField(default=False)
 
+    # Simulated start/end datetime the run was last started with (format
+    # '%Y-%m-%d %H:%M:%S'). Set by the web API when a run is started, and used
+    # by the UI to link into the historian with the matching time window.
+    sim_datetime_start = StringField(default=None)
+    sim_datetime_end = StringField(default=None)
+
     # Non-fatal, user-facing notices about a run (e.g. an uploaded FMU is
     # missing resources/kpis.json so KPI reporting is disabled). Surfaced in
     # the web UI so users know why/how to fix without failing the run.
