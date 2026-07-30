@@ -80,7 +80,7 @@ export const App = () => {
           </AppBar>
           <Routes>
             <Route path="/" element={<Upload />} />
-            <Route path="/sites" element={<Sites />} />
+            <Route path="/sites" element={<Sites historianConfig={historianConfig} />} />
             <Route path="/sims" element={<Sims />} />
             <Route path="/docs" element={<Docs />} />
             <Route path="*" element={<Navigate to="/" />} />
