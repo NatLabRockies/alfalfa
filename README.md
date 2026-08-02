@@ -77,6 +77,12 @@ If the packages are private, authenticate first with a GitHub personal access to
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-username> --password-stdin
 ```
 
+## Alfalfa Dependencies
+
+The `alfalfa_worker` Docker image is built `FROM` a base image published by the separate [alfalfa-dependencies](https://github.com/NatLabRockies/alfalfa-dependencies) repository (`ghcr.io/natlabrockies/alfalfa-dependencies`). That repo owns the slow-to-compile, infrequently-changing native/scientific dependencies the worker needs — EnergyPlus, OpenStudio, and Modelica/FMU support (Assimulo, PyFMI, and SUNDIALS, including the legacy SUNDIALS 5.x runtime compatibility libraries some FMUs require) — so they're built once as a shared image rather than recompiled on every `alfalfa_worker` build.
+
+The two repos are independent git repositories (no submodule/subtree link) connected only through the image tag referenced by `FROM` in [`alfalfa_worker/Dockerfile`](alfalfa_worker/Dockerfile). During development that tag is often a work-in-progress branch name from alfalfa-dependencies' CI (e.g. `sundials-legacy-runtime-compat`); once changes there are merged and released, `alfalfa_worker/Dockerfile` should be bumped to the corresponding release tag. If a worker build/runtime issue looks like it belongs to EnergyPlus, OpenStudio, Assimulo/PyFMI, or SUNDIALS rather than alfalfa's own code, it likely needs to be fixed in alfalfa-dependencies instead.
+
 ## Python Notebooks
 
 An [Alfalfa Python Notebook repository](https://github.com/NatLabRockies/alfalfa-notebooks) contains examples on how to interact with Alfalfa.
