@@ -7,7 +7,7 @@
 # instead of being recompiled on every alfalfa_worker build. See the
 # "Alfalfa Dependencies" section of README.md for how the two repos/images
 # relate.
-FROM ghcr.io/natlabrockies/alfalfa-dependencies:sundials-legacy-runtime-compat AS base
+FROM ghcr.io/natlabrockies/alfalfa-dependencies:main AS base
 
 ENV HOME=/alfalfa
 
