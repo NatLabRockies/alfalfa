@@ -14,7 +14,7 @@ We are currently working on increasing our developer documentation. See how to r
 
 Alfalfa runs as a Docker Compose stack (web, worker, MongoDB, Redis, and MinIO). Configuration is read from the `.env` file in the repository root. Requires Docker with the Compose plugin.
 
-**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs only ship x86_64 (`binaries/linux64`) shared libraries, and pyfmi has no arm64 support, so the `worker` service is pinned to `platform: linux/amd64` in `docker-compose.yml` and runs under emulation on arm64 hosts (slower, but correct). This applies whether the worker image is pulled prebuilt from GHCR (which is published multi-arch, including a native arm64 variant that would otherwise be selected automatically) or built locally with `--build`. If you don't pin the platform (e.g. running the worker image directly with `docker run`, outside Compose), an arm64 worker will fail to load FMUs with a misleading error such as:
+**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs only ship x86_64 (`binaries/linux64`) shared libraries, and pyfmi has no arm64 support, so the `worker` service should be pinned to `platform: linux/amd64` in `docker-compose.yml` and will run under emulation on arm64 hosts (slower, but correct). This applies whether the worker image is pulled prebuilt from GHCR (which is published multi-arch, including a native arm64 variant that would otherwise be selected automatically) or built locally with `--build`. If you don't pin the platform (e.g. running the worker image directly with `docker run`, outside Compose), an arm64 worker will fail to load FMUs with a misleading error such as:
 
 ```text
 pyfmi.fmi.InvalidBinaryException: The FMU could not be loaded. Error loading the binary.

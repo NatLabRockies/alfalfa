@@ -1,12 +1,3 @@
-# The legacy SUNDIALS 5.x runtime libraries needed for Modelica-exported FMUs
-# (e.g. from Dymola/OpenModelica) that dynamically link against
-# libsundials_cvode.so.5 / libsundials_nvecserial.so.5 are built and
-# installed by the alfalfa-dependencies base image itself (see the
-# sundials-legacy-compat stage in that repo's Dockerfile), not here, so the
-# fix is built once and shared across every image built FROM this base
-# instead of being recompiled on every alfalfa_worker build. See the
-# "Alfalfa Dependencies" section of README.md for how the two repos/images
-# relate.
 FROM ghcr.io/natlabrockies/alfalfa-dependencies:main AS base
 
 ENV HOME=/alfalfa
