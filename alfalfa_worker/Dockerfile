@@ -1,4 +1,4 @@
-FROM ghcr.io/natlabrockies/alfalfa-dependencies:main AS base
+FROM ghcr.io/natlabrockies/alfalfa-dependencies:4.0 AS base
 
 ENV HOME=/alfalfa
 
