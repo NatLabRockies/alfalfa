@@ -14,14 +14,14 @@ We are currently working on increasing our developer documentation. See how to r
 
 Alfalfa runs as a Docker Compose stack (web, worker, MongoDB, Redis, and MinIO). Configuration is read from the `.env` file in the repository root. Requires Docker with the Compose plugin.
 
-**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs only ship x86_64 (`binaries/linux64`) shared libraries, and pyfmi has no arm64 support, so the `worker` service should be pinned to `platform: linux/amd64` in `docker-compose.yml` and will run under emulation on arm64 hosts (slower, but correct). This applies whether the worker image is pulled prebuilt from GHCR (which is published multi-arch, including a native arm64 variant that would otherwise be selected automatically) or built locally with `--build`. If you don't pin the platform (e.g. running the worker image directly with `docker run`, outside Compose), an arm64 worker will fail to load FMUs with a misleading error such as:
+**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs typically only ship x86_64 (`binaries/linux64`) shared libraries, so a native arm64 `worker` will fail to load them with a misleading error such as:
 
 ```text
 pyfmi.fmi.InvalidBinaryException: The FMU could not be loaded. Error loading the binary.
 Could not load the FMU binary: .../binaries/linux64/<Model>.so: cannot open shared object file: No such file or directory
 ```
 
-This is an architecture mismatch, not a missing file — force amd64 with `export DOCKER_DEFAULT_PLATFORM=linux/amd64` (or an explicit `--platform linux/amd64`) in that case.
+This is an architecture mismatch, not a missing file. `docker-compose.yml` does **not** pin `platform: linux/amd64` on the `worker` service (running everything under amd64 emulation by default would make the worker significantly slower for the common case, and most Apple Silicon users don't need FMU support). If you need to run Modelica FMUs on Apple Silicon, force amd64 yourself with `export DOCKER_DEFAULT_PLATFORM=linux/amd64` (or an explicit `--platform linux/amd64`) before running `docker compose up`, whether the worker image is pulled prebuilt from GHCR or built locally with `--build`.
 
 ### Production mode
 
