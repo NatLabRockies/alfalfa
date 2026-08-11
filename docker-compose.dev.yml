@@ -3,7 +3,9 @@
 # container without needing to rebuild/restart Docker.
 #
 # Usage:
-#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml up --build --scale worker=2
+#     with historian use
+#   docker-compose -f docker-compose.yml -f docker-compose.dev.yml -f docker-compose.historian.yml up --build --scale worker=2
 
 services:
   web: # main haystack application
