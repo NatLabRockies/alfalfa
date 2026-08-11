@@ -200,11 +200,7 @@ class Job(metaclass=JobMetaclass):
 
     @with_run()
     def _check_messages(self) -> None:
-        # Use a blocking read with a short timeout instead of the non-blocking default
-        # (timeout=0). The non-blocking form turns start_message_loop into a tight
-        # busy-loop that repeatedly hset()s the job status to redis as fast as possible,
-        # burning a full CPU core and hammering redis while a job is simply waiting for
-        # its next message (e.g. between advance() calls).
+        # Blocking read avoids busy-spinning at 100% CPU while idle (default timeout=0 is non-blocking)
         message = self.redis_pubsub.get_message(timeout=1.0)
         try:
             if message and message['data'].__class__ == bytes:

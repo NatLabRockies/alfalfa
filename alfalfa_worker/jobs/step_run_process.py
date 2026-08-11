@@ -121,12 +121,7 @@ class StepRunProcess(StepRunBase):
             if desired_event_set:
                 event.wait(1)
             else:
-                # Event proxies only expose a "wait until set" primitive, so there is no
-                # equivalent blocking wait for the event to be cleared. Without a short
-                # sleep here this becomes a tight busy-loop that pegs a full CPU core for
-                # the entire duration of every advance() call, starving the simulation
-                # subprocess of CPU time (particularly under CI/container CPU limits) and
-                # making it more likely to overrun advance_timeout.
+                # avoid busy-spinning at 100% CPU while waiting for the event to clear
                 sleep(0.05)
         if self.error_event.is_set():
             self.handle_process_error()

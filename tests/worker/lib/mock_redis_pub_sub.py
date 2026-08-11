@@ -10,9 +10,7 @@ class MockRedisPubSub():
     def get_message(self, timeout=0.0):
         message = None
         try:
-            # Mirror redis-py's PubSub.get_message: timeout=0.0 (or None, which SimpleQueue
-            # treats as block-forever) polls without blocking indefinitely, while a positive
-            # timeout blocks up to that many seconds waiting for a message.
+            # Mirrors redis-py's PubSub.get_message signature/behavior
             message = self.messages.get(block=bool(timeout), timeout=timeout or None)
             return message
         except Empty:
