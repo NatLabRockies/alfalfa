@@ -64,7 +64,11 @@ class AlfalfaAPI {
       datetime: await this.getRunTime(run),
       simType: run.sim_type,
       uploadTimestamp: run.created,
-      errorLog: run.error_log
+      errorLog: run.error_log,
+      notices: run.notices || [],
+      externalClock: run.external_clock === true,
+      simDatetimeStart: run.sim_datetime_start || null,
+      simDatetimeEnd: run.sim_datetime_end || null
     };
     const model = await this.models.findOne({ _id: run.model });
     if (model) {
@@ -132,7 +136,9 @@ class AlfalfaAPI {
       id: point.ref_id,
       name: point.name,
       type: point.point_type,
-      units: point.units
+      units: point.units,
+      min: point.minimum ?? null,
+      max: point.maximum ?? null
     };
     return pointDict;
   };
@@ -148,6 +154,19 @@ class AlfalfaAPI {
       return Promise.reject(
         `Point with id '${point.ref_id}' cannot be written to by value '${value}' of type ${typeof value}`
       );
+    }
+
+    if (value !== null) {
+      if (typeof point.minimum === "number" && value < point.minimum) {
+        return Promise.reject(
+          `Point with id '${point.ref_id}' cannot be written to by value '${value}' because it is below the minimum of ${point.minimum}`
+        );
+      }
+      if (typeof point.maximum === "number" && value > point.maximum) {
+        return Promise.reject(
+          `Point with id '${point.ref_id}' cannot be written to by value '${value}' because it is above the maximum of ${point.maximum}`
+        );
+      }
     }
 
     return Promise.resolve(true);
@@ -212,6 +231,20 @@ class AlfalfaAPI {
       realtime: `${!!realtime}`,
       external_clock: `${!!externalClock}`
     };
+
+    // Persist the clock mode and simulated time window on the run so the UI can
+    // tell whether this run needs to be stepped manually (external clock) vs.
+    // advances on its own, and can link to the historian with the correct range.
+    await this.runs.updateOne(
+      { _id: run._id },
+      {
+        $set: {
+          external_clock: !!externalClock,
+          sim_datetime_start: startDatetime,
+          sim_datetime_end: endDatetime
+        }
+      }
+    );
 
     await this.sendJobToQueue(job, params);
   };
