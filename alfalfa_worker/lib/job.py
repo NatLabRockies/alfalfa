@@ -200,7 +200,8 @@ class Job(metaclass=JobMetaclass):
 
     @with_run()
     def _check_messages(self) -> None:
-        message = self.redis_pubsub.get_message()
+        # Blocking read avoids busy-spinning at 100% CPU while idle (default timeout=0 is non-blocking)
+        message = self.redis_pubsub.get_message(timeout=1.0)
         try:
             if message and message['data'].__class__ == bytes:
                 self.logger.info(f"received message: {message}")
