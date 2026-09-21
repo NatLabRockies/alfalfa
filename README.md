@@ -14,6 +14,15 @@ We are currently working on increasing our developer documentation. See how to r
 
 Alfalfa runs as a Docker Compose stack (web, worker, MongoDB, Redis, and MinIO). Configuration is read from the `.env` file in the repository root. Requires Docker with the Compose plugin.
 
+**Note for Apple Silicon (M1/M2/M3+) users:** Modelica FMUs typically only ship x86_64 (`binaries/linux64`) shared libraries, so a native arm64 `worker` will fail to load them with a misleading error such as:
+
+```text
+pyfmi.fmi.InvalidBinaryException: The FMU could not be loaded. Error loading the binary.
+Could not load the FMU binary: .../binaries/linux64/<Model>.so: cannot open shared object file: No such file or directory
+```
+
+This is an architecture mismatch, not a missing file. `docker-compose.yml` does **not** pin `platform: linux/amd64` on the `worker` service (running everything under amd64 emulation by default would make the worker significantly slower for the common case, and most Apple Silicon users don't need FMU support). If you need to run Modelica FMUs on Apple Silicon, force amd64 yourself with `export DOCKER_DEFAULT_PLATFORM=linux/amd64` (or an explicit `--platform linux/amd64`) before running `docker compose up`, whether the worker image is pulled prebuilt from GHCR or built locally with `--build`.
+
 ### Production mode
 
 Builds the optimized web bundle and runs the web service with `node build/index.js`:
@@ -67,6 +76,12 @@ If the packages are private, authenticate first with a GitHub personal access to
 ```bash
 echo "$GHCR_TOKEN" | docker login ghcr.io -u <github-username> --password-stdin
 ```
+
+## Alfalfa Dependencies
+
+The `alfalfa_worker` Docker image is built `FROM` a base image published by the separate [alfalfa-dependencies](https://github.com/NatLabRockies/alfalfa-dependencies) repository (`ghcr.io/natlabrockies/alfalfa-dependencies`). That repo owns the slow-to-compile, infrequently-changing native/scientific dependencies the worker needs — EnergyPlus, OpenStudio, and Modelica/FMU support (Assimulo, PyFMI, and SUNDIALS, including the legacy SUNDIALS 5.x runtime compatibility libraries some FMUs require) — so they're built once as a shared image rather than recompiled on every `alfalfa_worker` build.
+
+The two repos are independent git repositories (no submodule/subtree link) connected only through the image tag referenced by `FROM` in [`alfalfa_worker/Dockerfile`](alfalfa_worker/Dockerfile), currently `main` (alfalfa-dependencies' default branch, rebuilt and republished by its CI on every push). During development that tag is sometimes a work-in-progress branch name from alfalfa-dependencies' CI instead; once merged to `main` (or a tagged release), `alfalfa_worker/Dockerfile` should be bumped back to `main` or the corresponding release tag. If a worker build/runtime issue looks like it belongs to EnergyPlus, OpenStudio, Assimulo/PyFMI, or SUNDIALS rather than alfalfa's own code, it likely needs to be fixed in alfalfa-dependencies instead.
 
 ## Python Notebooks
 
