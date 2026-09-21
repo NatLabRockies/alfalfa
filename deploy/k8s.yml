@@ -171,7 +171,7 @@ items:
                   value: user
                 - name: MINIO_SECRET_KEY
                   value: password
-              image: quay.io/minio/mc
+              image: quay.io/minio/mc:RELEASE.2022-12-13T00-23-28Z
               imagePullPolicy: ""
               name: mc
               resources: {}
