@@ -195,14 +195,13 @@ class Job(metaclass=JobMetaclass):
             if timeout is not None and time() - start_time > timeout:
                 break
             self.set_job_status(JobStatus.WAITING)
-            self._check_messages()
+            self._check_messages(timeout=1.0)
         self.logger.info("message loop over")
 
     @with_run()
-    def _check_messages(self, timeout: float = 1.0) -> None:
-        # Blocking read avoids busy-spinning at 100% CPU while idle (default timeout=0 is non-blocking).
-        # Callers on a timing-sensitive path (e.g. StepRunBase.run_timescale's internal clock) should
-        # pass a short timeout so this can't stall advancement and accumulate simulation lag.
+    def _check_messages(self, timeout: float = 0.0) -> None:
+        # Callers may opt into a blocking read to avoid busy-spinning while idle.
+        # The default remains non-blocking so timing-sensitive paths can't stall waiting for messages.
         message = self.redis_pubsub.get_message(timeout=timeout)
         try:
             if message and message['data'].__class__ == bytes:
