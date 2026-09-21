@@ -64,11 +64,7 @@ def test_io_enable_disable(alfalfa: AlfalfaClient):
 
         outputs = alfalfa.get_outputs(site_id)
         assert outputs["OfficeSmall HTGSETP_SCH_NO_OPTIMUM"] == pytest.approx(0)
-        # Allow some slack here: the EMS Python plugin echoes "Python Input" through
-        # "Python Output" at the "begin timestep before predictor" calling point, which
-        # can trail the just-applied input by a step or two under load, so a strict
-        # equality to 20 is too tight for CI. Loosen to a generous +/-1 band around 21.
-        assert outputs["Python Output"] == pytest.approx(21, abs=1), "'Python Output' has incorrect value"
+assert outputs["Python Output"] == pytest.approx(20), "'Python Output' has incorrect value"
 
     inputs = {"OfficeSmall HTGSETP_SCH_NO_OPTIMUM": None, "Python Input": 0}
     alfalfa.set_inputs(site_id, inputs)
