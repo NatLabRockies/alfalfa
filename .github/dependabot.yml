@@ -5,6 +5,8 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "direct"
     open-pull-requests-limit: 10
     allow:
       - dependency-type: "direct"
@@ -18,6 +20,8 @@ updates:
     directory: "/alfalfa_web"
     schedule:
       interval: "weekly"
+    allow:
+      - dependency-type: "direct"
     open-pull-requests-limit: 10
     allow:
       - dependency-type: "direct"
