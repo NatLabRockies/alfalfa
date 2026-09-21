@@ -199,9 +199,11 @@ class Job(metaclass=JobMetaclass):
         self.logger.info("message loop over")
 
     @with_run()
-    def _check_messages(self) -> None:
-        # Blocking read avoids busy-spinning at 100% CPU while idle (default timeout=0 is non-blocking)
-        message = self.redis_pubsub.get_message(timeout=1.0)
+    def _check_messages(self, timeout: float = 1.0) -> None:
+        # Blocking read avoids busy-spinning at 100% CPU while idle (default timeout=0 is non-blocking).
+        # Callers on a timing-sensitive path (e.g. StepRunBase.run_timescale's internal clock) should
+        # pass a short timeout so this can't stall advancement and accumulate simulation lag.
+        message = self.redis_pubsub.get_message(timeout=timeout)
         try:
             if message and message['data'].__class__ == bytes:
                 self.logger.info(f"received message: {message}")
