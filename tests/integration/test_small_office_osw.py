@@ -64,7 +64,7 @@ def test_io_enable_disable(alfalfa: AlfalfaClient):
 
         outputs = alfalfa.get_outputs(site_id)
         assert outputs["OfficeSmall HTGSETP_SCH_NO_OPTIMUM"] == pytest.approx(0)
-assert outputs["Python Output"] == pytest.approx(20), "'Python Output' has incorrect value"
+        assert outputs["Python Output"] == pytest.approx(20), "'Python Output' has incorrect value"
 
     inputs = {"OfficeSmall HTGSETP_SCH_NO_OPTIMUM": None, "Python Input": 0}
     alfalfa.set_inputs(site_id, inputs)
