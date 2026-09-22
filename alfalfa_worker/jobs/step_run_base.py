@@ -174,9 +174,7 @@ class StepRunBase(Job):
                 self.stop()
                 break
 
-            # Use a short, bounded timeout here (rather than _check_messages' 1s default) so that
-            # checking for e.g. a "stop" message can't stall this loop long enough to accumulate
-            # simulation lag against next_advance_time.
+            # Check for incoming messages with a short timeout to avoid stalling the loop.
             self._check_messages(timeout=0.05)
         self.logger.info("Internal clock simulation has exited.")
 

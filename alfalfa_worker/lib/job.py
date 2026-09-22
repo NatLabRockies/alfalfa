@@ -200,8 +200,6 @@ class Job(metaclass=JobMetaclass):
 
     @with_run()
     def _check_messages(self, timeout: float = 0.0) -> None:
-        # Callers may opt into a blocking read to avoid busy-spinning while idle.
-        # The default remains non-blocking so timing-sensitive paths can't stall waiting for messages.
         message = self.redis_pubsub.get_message(timeout=timeout)
         try:
             if message and message['data'].__class__ == bytes:

@@ -10,7 +10,6 @@ class MockRedisPubSub():
     def get_message(self, timeout=0.0):
         message = None
         try:
-            # Mirrors redis-py's PubSub.get_message signature/behavior
             if timeout:
                 message = self.messages.get(block=True, timeout=timeout)
             else:

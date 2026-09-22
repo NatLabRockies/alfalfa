@@ -121,7 +121,7 @@ class StepRunProcess(StepRunBase):
             if desired_event_set:
                 event.wait(1)
             else:
-                # avoid busy-spinning at 100% CPU while waiting for the event to clear
+                # avoid 100% CPU while waiting for the event to clear
                 sleep(0.05)
         if self.error_event.is_set():
             self.handle_process_error()
@@ -149,7 +149,7 @@ class StepRunProcess(StepRunBase):
             while (self.simulation_process.is_alive()
                    and time() - stop_start_time < self.options.stop_timeout
                    and not self.error_event.is_set()):
-                # See the comment in _wait_for_event: avoid busy-spinning at 100% CPU.
+                # Avoid busy-spinning at 100% CPU.
                 sleep(0.05)
             if time() - stop_start_time > self.options.stop_timeout and self.simulation_process.is_alive():
                 self.simulation_process.kill()
