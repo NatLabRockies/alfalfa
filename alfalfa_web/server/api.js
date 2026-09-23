@@ -154,19 +154,6 @@ class AlfalfaAPI {
       );
     }
 
-    if (value !== null) {
-      if (typeof point.minimum === "number" && value < point.minimum) {
-        return Promise.reject(
-          `Point with id '${point.ref_id}' cannot be written to by value '${value}' because it is below the minimum of ${point.minimum}`
-        );
-      }
-      if (typeof point.maximum === "number" && value > point.maximum) {
-        return Promise.reject(
-          `Point with id '${point.ref_id}' cannot be written to by value '${value}' because it is above the maximum of ${point.maximum}`
-        );
-      }
-    }
-
     return Promise.resolve(true);
   };
 
