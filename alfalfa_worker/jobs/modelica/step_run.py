@@ -133,7 +133,7 @@ class StepRun(StepRunBase):
                                       }, "tags":
                                       {
                                           "name": point.name,
-                                          "units": point.units,
+                                          "units": (point.units or self.tc.outputs_metadata.get(point.name, {}).get('Unit') or "")[:10],
                                           "id": point.ref_id,
                                           "point": True,
                                           "source": "alfalfa"
