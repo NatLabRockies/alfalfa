@@ -174,7 +174,8 @@ class StepRunBase(Job):
                 self.stop()
                 break
 
-            self._check_messages()
+            # Check for incoming messages with a short timeout to avoid stalling the loop.
+            self._check_messages(timeout=0.05)
         self.logger.info("Internal clock simulation has exited.")
 
     def get_sim_time(self) -> datetime:
