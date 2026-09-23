@@ -8,5 +8,10 @@ datasources:
     url: http://${INFLUXDB_HOST}:8086 # url of the prom instance
     version: 1 # well, versioning
     database: $INFLUXDB_DB
-    user: $INFLUXDB_ADMIN_USER
-    password: $INFLUXDB_ADMIN_PASSWORD
+    # `password` is not a real datasource field (Grafana silently ignores it) --
+    # InfluxDB HTTP auth must be sent as a Basic Auth header, which requires
+    # basicAuth/basicAuthUser + the password in secureJsonData.
+    basicAuth: true
+    basicAuthUser: $INFLUXDB_ADMIN_USER
+    secureJsonData:
+      basicAuthPassword: $INFLUXDB_ADMIN_PASSWORD
