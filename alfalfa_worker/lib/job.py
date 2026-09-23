@@ -195,12 +195,12 @@ class Job(metaclass=JobMetaclass):
             if timeout is not None and time() - start_time > timeout:
                 break
             self.set_job_status(JobStatus.WAITING)
-            self._check_messages()
+            self._check_messages(timeout=1.0)
         self.logger.info("message loop over")
 
     @with_run()
-    def _check_messages(self) -> None:
-        message = self.redis_pubsub.get_message()
+    def _check_messages(self, timeout: float = 0.0) -> None:
+        message = self.redis_pubsub.get_message(timeout=timeout)
         try:
             if message and message['data'].__class__ == bytes:
                 self.logger.info(f"received message: {message}")

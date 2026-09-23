@@ -7,10 +7,13 @@ class MockRedisPubSub():
         self.messages: SimpleQueue = SimpleQueue()
         self.channels = []
 
-    def get_message(self):
+    def get_message(self, timeout=0.0):
         message = None
         try:
-            message = self.messages.get(False)
+            if timeout:
+                message = self.messages.get(block=True, timeout=timeout)
+            else:
+                message = self.messages.get(False)
             return message
         except Empty:
             return message

@@ -320,7 +320,7 @@ items:
                   value: user
                 - name: MINIO_SECRET_KEY
                   value: password
-              image: minio/mc
+              image: quay.io/minio/mc:RELEASE.2022-12-13T00-23-28Z
               imagePullPolicy: ""
               name: mc
               resources: {}
@@ -365,7 +365,7 @@ items:
                   value: user
                 - name: MINIO_SECRET_KEY
                   value: password
-              image: minio/minio
+              image: quay.io/minio/minio
               imagePullPolicy: ""
               name: minio
               ports:
