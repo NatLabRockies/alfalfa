@@ -60,13 +60,6 @@ const PointWriteControl = ({ run, point }) => {
       setFeedback({ severity: "error", message: "Enter a numeric value" });
       return;
     }
-    if (
-      (typeof point.min === "number" && number < point.min) ||
-      (typeof point.max === "number" && number > point.max)
-    ) {
-      setFeedback({ severity: "error", message: `Value is out of range. ${range}` });
-      return;
-    }
     writeValue(number);
   };
 
