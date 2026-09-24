@@ -35,7 +35,12 @@ services:
   # Local implementation of s3
   minio:
     container_name: alfalfa_minio
-    image: quay.io/minio/minio:RELEASE.2024-04-18T19-09-19Z
+    build:
+      dockerfile: Dockerfile.minio
+      context: minio
+      args:
+        - MINIO_RELEASE
+    image: ${REGISTRY_BASE_URI}/minio:${MINIO_RELEASE}
     entrypoint:
       - minio
       - server
@@ -51,7 +56,12 @@ services:
       - MINIO_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
   mc:
     container_name: alfalfa_mc
-    image: quay.io/minio/mc:RELEASE.2022-12-13T00-23-28Z
+    build:
+      dockerfile: Dockerfile.mc
+      context: minio
+      args:
+        - MC_RELEASE
+    image: ${REGISTRY_BASE_URI}/mc:${MC_RELEASE}
     environment:
       - MINIO_ACCESS_KEY=${AWS_ACCESS_KEY_ID}
       - MINIO_SECRET_KEY=${AWS_SECRET_ACCESS_KEY}
