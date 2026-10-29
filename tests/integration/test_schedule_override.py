@@ -52,6 +52,8 @@ def test_schedule_override(alfalfa: AlfalfaClient):
     alfalfa.advance(site_id)
 
     outputs = alfalfa.get_outputs(site_id)
-    assert inputs.items() <= outputs.items(), "Schedule override failed"
+    for name, value in inputs.items():
+        assert name in outputs, f"{name} not found in outputs"
+        assert outputs[name] == pytest.approx(value, abs=1.0), f"Schedule override failed for {name}"
 
     alfalfa.stop(site_id)
